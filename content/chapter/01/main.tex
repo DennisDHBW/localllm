@@ -1,0 +1,110 @@
+%!TEX root = ../../../main.tex
+\chapter{Cloud-Zentrierung und infrastrukturelle Abhängigkeiten}\label{chap:cloud-ursachen}
+% Kennzeichnung der Autorenschaft (Vorgabe der Arbeit) -- Form ggf. in der Gruppe vereinheitlichen
+\noindent\textit{Verfasser: [Name]}
+
+
+Beim Smart-TV steht die Verwertung von Nutzungsdaten im Vordergrund. Die
+Bindung an Herstellerserver betrifft jedoch auch die Frage, ob ein Gerät
+überhaupt funktioniert. Dieses und das folgende Kapitel untersuchen daher,
+warum Hersteller Smart-Home-Geräte an ihre Server binden und welche Folgen
+das für Funktion, Lebensdauer und Kontrolle der Käufer hat. Die leitende
+These lautet: Cloud-Abhängigkeit ist weniger eine technische Notwendigkeit
+als eine Folge von Geschäftsmodellen.
+
+\section{Cloud-zentrierte Architektur am Beispiel des Saugroboters}\label{sec:cloud-architektur}
+
+Viele Smart-Home-Geräte führen zentrale Funktionen nicht selbst aus, sondern
+über Benutzerkonto, Hersteller-App und Hersteller-Server. Hoofnagle, Kesari
+und Perzanowski bezeichnen diese dauerhafte Verbindung zwischen verkauftem
+Produkt und Anbieter als \enquote{Tethered Economy}: Der Hersteller kann
+Funktionen auch nach dem Kauf verändern oder entziehen
+\autocite[vgl.][]{hoofnagle:2019}. Nach Tusikov macht gerade die
+Angewiesenheit auf Cloud-Dienste vernetzte Produkte für ihre Hersteller
+besonders steuerbar, bis hin zum gezielten Unbrauchbarmachen, dem
+sogenannten \enquote{Bricking} \autocite[vgl.][S.~2, 7]{tusikov:2019}.
+
+Der Saugroboter veranschaulicht diese Architektur. Er erfasst die Wohnung
+mit LiDAR- oder Kamerasensoren und erzeugt daraus Raumkarten. Kartenverwaltung,
+raumweise Reinigung, Sperrzonen und Zeitpläne laufen bei vielen Modellen
+jedoch über App und Cloud des Herstellers. Das Open-Source-Projekt Valetudo,
+das in Kapitel~7 behandelt wird, versteht sich ausdrücklich als Ersatz für
+diese Cloud und begründet dies mit Datenschutz, der Unabhängigkeit von
+Internetausfällen und dem Schutz vor nachträglich eingeführten Abonnements
+\autocite[vgl.][]{valetudo:2025}.
+
+Daraus ergeben sich zwei Abhängigkeitsebenen. Die erste ist der Fortbestand
+des Herstellers. Der Roomba-Hersteller iRobot beantragte im Dezember~2025
+Gläubigerschutz nach US-Insolvenzrecht und ging vollständig an seinen
+Auftragsfertiger Picea Robotics über \autocite[vgl.][]{fortune:2025}. App
+und Support liefen zwar weiter \autocite[vgl.][]{trustedreviews:2026}, doch
+die Kontrolle über Wohnungskarten und Dienste wechselte den Eigentümer, ohne
+dass die Nutzer Einfluss darauf hatten. Die zweite Ebene ist die
+Infrastruktur: Als Amazon Web Services im Oktober~2025 ausfiel, ließen sich
+die vernetzten Betten des Herstellers Eight Sleep nicht mehr steuern. Dass
+der Hersteller kurz darauf eine Steuerung ohne Cloud nachrüstete, zeigt, dass
+die vollständige Abhängigkeit eine Designentscheidung war
+\autocite[vgl.][]{patterson:2025}.
+
+Die Cloud ist damit nicht pauschal abzulehnen; sie ermöglicht Fernzugriff,
+einfache Einrichtung und zentrale Updates. Versteht man Souveränität im Sinne
+von Kapitel~2 als informierte Selbstbestimmung und nicht als Autarkie
+\autocite[vgl.][]{ternes:2022}, liegt das Problem im Fehlen einer lokalen
+Rückfallebene.
+
+\section{Vendor-Lock-in über Schnittstellen}\label{sec:cloud-lockin}
+
+Sind Kunden auf ein System festgelegt, wird der Wechsel zu einem
+Konkurrenzprodukt teuer, und der Anbieter gewinnt Spielraum bei Preisen und
+Konditionen \autocite[vgl.][]{shapiro:1999}. Im Cloud-Kontext entsteht ein
+solcher Lock-in vor allem durch proprietäre Schnittstellen und mangelnde
+Interoperabilität \autocite[vgl.][]{oparamartins:2016}. Eine Studie im
+Auftrag des Umweltbundesamts (\acrshort{UBA}) beschreibt das Bemühen der
+Hersteller, Kunden über proprietäre Systeme an ihre Plattformen zu binden,
+als wirtschaftlichen Zielkonflikt, der langlebigen Produkten entgegensteht
+\autocite[vgl.][S.~39]{jaegererben:2023}.
+
+Wie gezielt Hersteller diesen Hebel einsetzen, zeigt der Garagentorhersteller
+Chamberlain. Er sperrte 2023 den Zugriff von Drittanbieter-Software auf sein
+myQ-System, woraufhin die Open-Source-Plattform Home Assistant ihre seit 2017
+bestehende Integration entfernen musste. Offizielle Partner zahlen
+Chamberlain dagegen für den Zugang \autocite[vgl.][]{homeassistant:2023},
+und die herstellereigene App zeigt Werbung, die Nutzern von Drittanbieter-Apps
+entgeht \autocite[vgl.][]{ninetofivemac:2023}. Samsung verlangt seit
+Oktober~2026 von privaten Entwicklern rund fünf US-Dollar monatlich für den
+bislang freien Zugang zur Programmierschnittstelle (\acrshort{API}) von
+SmartThings, während die eigene App kostenfrei bleibt
+\autocites[vgl.][]{sammobile:2026}{androidpure:2026}. In beiden Fällen wird
+keine neue Funktion bepreist oder geschützt, sondern die Möglichkeit, das
+eigene Gerät außerhalb des Hersteller-Ökosystems zu steuern. Gerade diese
+Interoperabilität würde einen Wechsel erleichtern.
+
+\section{Hardware as a Service: nachträgliche Monetarisierung}\label{sec:cloud-haas}
+
+Hinter dem Lock-in steht ein strukturelles Finanzierungsproblem: Das Gerät
+wird einmal verkauft, der Serverbetrieb verursacht dauerhaft Kosten. Der
+Schweizer Anbieter myStrom machte dies 2024 offen, als er bislang kostenlose
+Funktionen in ein Abonnement überführte. Ohne diesen Schritt wäre das
+Unternehmen nach eigener Aussage Anfang~2025 in Konkurs gegangen; die Marge
+von rund fünf Franken pro Gerät decke die Kosten nur für etwa 18~Monate
+\autocite[vgl.][]{itreseller:2024}. Auch der Thermostathersteller Tado
+testete 2025 eine Gebühr für seine App \autocite[vgl.][]{heise:2025b}. Das
+Gerät wird so zur Plattform für wiederkehrende Erlöse, zu denen auch die in
+Kapitel~3 beschriebene Verwertung von Nutzungsdaten zählt.
+
+Abonnements sind nicht per se illegitim, denn Serverkosten sind real. Ein
+beim Kauf transparent ausgewiesenes Abo erlaubt eine informierte
+Entscheidung. Problematisch ist die nachträgliche Einschränkung oder
+Bepreisung von Funktionen bereits bezahlter Geräte: Dann bestimmt der
+Hersteller und nicht der Käufer den Funktionsumfang, was die
+Entscheidungssouveränität unmittelbar berührt.
+
+Dass der Markt dies nicht korrigiert, liegt an einer Informationsasymmetrie.
+Die US-amerikanische Federal Trade Commission (\acrshort{FTC}) fand 2024 auf
+den Herstellerseiten von 161 der 184 untersuchten vernetzten Produkte keine
+Angabe zur Dauer der Software-Unterstützung \autocite[vgl.][]{ftc:2024}.
+Können Käufer die Qualität eines Gutes nicht beurteilen, entscheiden sie nach
+dem Preis, und hochwertige Anbieter werden nicht belohnt
+\autocite[vgl.][]{akerlof:1970}. Die Lebensdauer der Herstellerdienste ist ein
+solches verdecktes Qualitätsmerkmal, weshalb Transparenzpflichten wie das in
+Kapitel~9 behandelte IT-Sicherheitskennzeichen ansetzen.
