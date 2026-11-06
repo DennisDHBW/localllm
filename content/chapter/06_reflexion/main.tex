@@ -9,8 +9,8 @@
     \item \textbf{Was Code entscheidet, stimmt.} Fristfragen löst P2 alle, weil Python rechnet. Dass Rechnen ins Werkzeug gehört \cite{schick2023}, zeigt sich hier am deutlichsten.
     \item \textbf{Abstimmen heißt Überanpassen.} 81\,\% auf dem Entwicklungssatz, 35\,\% auf ungesehenen Fragen. Ohne versiegelten Testsatz wäre mir das entgangen.
     \item \textbf{Auch die Bewertung braucht Tests.} Ein fehlendes Muster für die eigene Ablehnungsformel ließ Version2 um 11 bis 14 Prozentpunkte schlechter aussehen. Eine fehlende Auswahlregel ließ ein Synthesemodell ungeprüft.
-    \item \textbf{Mehr Autonomie ist nicht automatisch besser.} P1 und P2 liegen gleichauf, scheitern aber an verschiedenen Fragen. Das spricht für eine Weiche nach Fragetyp wie in Adaptive-RAG \cite{jeong2024}.
+    \item \textbf{Mehr Autonomie ist nicht automatisch besser.} P1 und P2 liegen gleichauf, scheitern aber an verschiedenen Fragen. Eine einfache Weiche nach Fragetyp wie in Adaptive-RAG \cite{jeong2024} hob die Korrektheit auf 59\,\%, gesichert ist der Gewinn aber nicht.
     \item \textbf{Lokal heißt Ressourcenplanung.} Zwei Läufe brachen ab, weil Ollama hier auf 9\,GB begrenzt ist.
 \end{enumerate}
 
-\paragraph{Ausblick.} Als Nächstes würde ich eine gemessene Weiche zwischen P1 und P2 bauen. Tabellenwerte würde ich deterministisch aus \texttt{chunks.json} lesen. Dazu käme eine Ablehnungsprüfung für Vertragstypen, die im Bestand fehlen. Bewerten würde ich das auf einem neuen, versiegelten Testsatz.
+\paragraph{Ausblick.} Als Nächstes würde ich die Weiche auf einem neuen, versiegelten Testsatz prüfen. Tabellenwerte würde ich deterministisch aus \texttt{chunks.json} lesen. Dazu käme eine Ablehnungsprüfung für Vertragstypen, die im Bestand fehlen. Bewerten würde ich das auf demselben neuen Testsatz.
