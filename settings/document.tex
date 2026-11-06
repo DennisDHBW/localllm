@@ -9,28 +9,33 @@
 % T3100 Seminar Paper (Semester 5 & 6)
 % T3300 Bachelor Thesis
 % or custom type like 'Hausarbeit'
-\newcommand{\documentType}{T2000}
-\newcommand{\showCompanyLogo}{true}
+% Prüfungsleistung laut Aufgabenstellung: "Konzeptentwurf für einen eigenen KI-Agenten-Prototyp"
+% (feminin gewählt, damit "meine/dieser ..." in Erklärung und Hinweisen grammatisch passt)
+\newcommand{\documentType}{Konzeptarbeit}
+\newcommand{\showCompanyLogo}{false}
 
 % Whether to show the ai note at the beginning
+% TODO: Text in ads/aiNote.tex an die tatsächliche Nutzung und die Vorgaben der Hochschule anpassen
 \setAiNote{true}
 
 % Whether to show the gender note at the beginning
 \setGenderNote{true}
 
 % Wether to show a glossary at the end
-\setGlossary{false}
+\setGlossary{true}
 
 \newcommand{\multipleAuthors}{false}
-\newcommand{\documentAuthor}{Max Mustermann}
-\newcommand{\documentTitle}{Titel der Arbeit}
-\newcommand{\documentPeriod}{12 Wochen}
+\newcommand{\documentAuthor}{Dennis Gerhardt}
+\newcommand{\documentTitle}{LocalLLM: Ein lokaler Agent für private Rechnungen und Verträge}
+\newcommand{\documentPeriod}{Oktober -- November 2026}
 
-\newcommand{\matriculationNumber}{1234510}
+% TODO: Matrikelnummer und Kurs eintragen
+\newcommand{\matriculationNumber}{0000000}
 
+% TODO: Standort, Studiengang und Kurs prüfen
 \newcommand{\locationUniversity}{Mosbach}
-\newcommand{\department}{Angewandte Informatik}
-\newcommand{\course}{INF19A}
+\newcommand{\department}{Informatik}
+\newcommand{\course}{KURS}
 
 \newcommand{\degree}{Bachelor of Science}
 % INF2014 - INF2016 (MI):       Bachelor of Science
@@ -38,17 +43,20 @@
 % INF2017 (all):                Bachelor of Science
 
 % A lecture that the document is written for
-\newcommand{\lecture}{Software Engineering}
+\newcommand{\lecture}{Agentensysteme: Local Agentic AI}
 % Whether to show the lecture on cover
-\newcommand{\showLecture}{false}
+\newcommand{\showLecture}{true}
 
-\newcommand{\releaseDate}{September 20XX}
+% TODO: Abgabedatum und -ort prüfen
+\newcommand{\releaseDate}{November 2026}
 \newcommand{\releaseLocation}{Mosbach}
 
-\newcommand{\companyName}{Firma GmbH}
-\newcommand{\companyLocation}{Firmenort}
+% Dualer Partner und Betreuer erscheinen bei der Konzeptarbeit nicht auf dem Deckblatt
+\newcommand{\companyName}{Dualer Partner}
+\newcommand{\companyLocation}{Ort}
 
-\newcommand{\tutor}{Dipl.-Ing.~(FH) Peter Pan}
-\newcommand{\evaluator}{Prof. Dr.\ Rolf Assfalg}
+\newcommand{\tutor}{--}
+% TODO: Dozent der Vorlesung eintragen (steht auf dem Deckblatt)
+\newcommand{\evaluator}{Name des Dozenten}
 
 \newcommand{\linkColor}{000000}

@@ -1,2 +1,27 @@
-%!TEX root = ../../../main.tex
-\chapter{Kapitel2}\label{chap:02}
+%!TEX root = ../main.tex
+
+
+\makeatletter
+\renewenvironment{abstract}{%
+    \thispagestyle{empty}
+    \@beginparpenalty\@lowpenalty
+    \begin{center}%
+        \bfseries \abstractname
+        \@endparpenalty\@M
+    \end{center}
+}%
+
+{\par\vfil\null}
+\makeatother
+
+\begin{abstract}
+% Abstract in Deutsch
+LocalLLM ist ein Agent für private Rechnungen und Verträge, der vollständig auf einem Laptop mit 16\,GB Arbeitsspeicher und ohne Grafikkarte läuft. Er liest PDF- und DOCX-Dokumente strukturbewusst ein, legt Kerndaten per JSON-Schema ab, sucht mit Hierarchie-Präfix und Boost und beantwortet Fragen mit nummerierten Quellen. Zwei Prototypen werden verglichen: P1 zeigt zuerst die Belege und formuliert erst danach (Evidence-First), P2 ist ein ReAct-Agent mit sieben nativ aufgerufenen Werkzeugen, darunter eine deterministische Fristberechnung. Eine KPI-Suite mit 23 Kennzahlen, Konfidenzintervallen und einem versiegelten Testsatz misst die Version vor und nach dem Umbau auf denselben 29 Fragen. Messbar besser wurden Retrieval (MRR 0,49 auf 0,86), Kerndaten (49 auf 96\,\% richtige Felder), Werkzeugwahl (10 auf 75\,\%) und Latenz (Median 105 auf 28\,s). Die Korrektheit blieb bei rund 50\,\%: Auf dem Entwicklungssatz erreicht P1 81\,\%, auf ungesehenen Fragen 35\,\%. Der Engpass ist nicht die Suche, sondern das kleine Sprachmodell beim Lesen der Belege.
+\end{abstract}
+
+\begin{otherlanguage}{english}
+    \begin{abstract}
+    % Abstract in Englisch
+    LocalLLM is an agent for private invoices and contracts that runs entirely on a laptop with 16\,GB of RAM and no graphics card. It ingests PDF and DOCX documents with their structure, stores key facts via a JSON schema, retrieves with a hierarchy prefix and boost, and answers with numbered sources. Two prototypes are compared: P1 shows the evidence first and synthesises afterwards (evidence-first), P2 is a ReAct agent with seven natively called tools, including a deterministic deadline calculation. A KPI suite with 23 metrics, confidence intervals and a sealed test set measures the system before and after the rebuild on the same 29 questions. Retrieval (MRR 0.49 to 0.86), key facts (49 to 96\,\% correct fields), tool selection (10 to 75\,\%) and latency (median 105 to 28\,s) improved measurably. Correctness stayed at about 50\,\%: P1 reaches 81\,\% on the development set but 35\,\% on unseen questions. The bottleneck is not retrieval but the small language model reading the evidence.
+    \end{abstract}
+\end{otherlanguage}

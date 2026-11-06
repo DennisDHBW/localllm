@@ -1,5 +1,14 @@
 %!TEX root = ../main.tex
 
+%% Zusätzliche Pakete (Tabellen mit Linien nach booktabs)
+\usepackage{booktabs}
+% Flattersatz-Spalte für tabularx (verhindert gesperrte Wörter in schmalen Spalten)
+\usepackage{array}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+% Architekturbild direkt in LaTeX (keine Rastergrafik)
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,fit}
+
 %% Citation Styles
 % https://de.overleaf.com/learn/latex/Biblatex_citation_styles
 % recommended: for Electrical Engineering/Computer Science: IEEE
@@ -30,7 +39,7 @@
 %% Syntax Highlighting (Listings)
 \newcommand{\listingsettings}{%
 	\lstset{%
-		language=Java,			% default language
+		language={},			% default language (keine Syntaxhervorhebung)
 		numbers=left,			% position of line numbers (left, right)
 		stepnumber=1,			% set number to each line
 		numbersep=5pt,			% 5pt between number and source code
@@ -40,6 +49,7 @@
 		postbreak=\space,		% break line after space
 		tabsize=2,				% tabulator size
 		basicstyle=\ttfamily\footnotesize, % font style
+		columns=fullflexible,	% natürliche Zeichenabstände
 		showspaces=false,		% show space (true, false)		
 		showstringspaces=false,	% show space in strings (true, false)
 		extendedchars=true,		% show all Latin1 characters (true, false)
@@ -54,6 +64,9 @@
 		aboveskip=20pt,
 		keywordstyle=\color[rgb]{0.133,0.133,0.6},
 		commentstyle=\color[rgb]{0.133,0.545,0.133},
-		stringstyle=\color[rgb]{0.627,0.126,0.941}
+		stringstyle=\color[rgb]{0.627,0.126,0.941},
+		% Umlaute und Sonderzeichen in Listings (pdflatex)
+		literate={ä}{{\"a}}1 {ö}{{\"o}}1 {ü}{{\"u}}1 {Ä}{{\"A}}1 {Ö}{{\"O}}1 {Ü}{{\"U}}1 {ß}{{\ss}}1
+			{€}{{\texteuro}}1 {³}{{\textthreesuperior}}1 {·}{{\textperiodcentered}}1 {–}{{--}}1
 	}
 }

@@ -1,3 +1,48 @@
 % !TeX root =../main.tex
 
-\chapter{erster Anhang}
+\chapter{Fehleranalyse der Schlussmessung}
+\label{app:fehler}
+
+Falsch bewertete Antworten der Schlussmessung (erste Wiederholung), gruppiert nach Ursache aus der aufgezeichneten Trajektorie. Die vollständigen Datensätze liegen in \texttt{src/eval/results/schlussmessung2/}.
+
+\begin{table}[H]
+    \centering
+    \small
+    \begin{tabularx}{\textwidth}{@{}l l Y@{}}
+        \toprule
+        \textbf{Ursache} & \textbf{Fragen} & \textbf{Beispiel} \\
+        \midrule
+        P1 lehnt trotz Beleg ab & K4, H05, H06, H12 & Zahlungsziel der Arztrechnung steht im Kontext, Antwort \enquote{nichts belegt} \\
+        P1 rechnet oder liest falsch & H04, H10, H13, H20 & Frühestes Abo-Ende 04.11.\ statt 04.12.2026 (Frist nicht deterministisch berechnet) \\
+        P2 liest Tabellenzeile falsch & H01, H02, H18 & Niedertarif 8300 statt 5500\,kWh (Zeile des Hochtarifs) \\
+        P2 lehnt nach Werkzeugaufruf ab & K3, H03, H09, H19 & Kerndaten oder Bildsuche liefern den Wert nicht, der Agent sucht nicht weiter \\
+        Antwort auf ähnlichen Vertrag & H15, H16 (P2), H16, H17 (P1) & \enquote{Fernwärme} mit dem Heizstromvertrag beantwortet \\
+        Liste unvollständig oder falsch gefiltert & H11, H12 (P2) & abgelaufene Preisgarantie als gültig aufgeführt \\
+        \bottomrule
+    \end{tabularx}
+    \caption{Fehlerursachen der Schlussmessung}
+    \label{tab:fehler}
+\end{table}
+
+\chapter{Modellauswahl und Retrieval-Ablation}
+\label{app:messungen}
+
+\input{content/generated/modell_tabelle.tex}
+
+\begin{table}[H]
+    \centering\small
+    \begin{tabular}{lrrrr}
+        \toprule
+        Variante & Recall@5 & MRR & $\Delta$MRR [95\,\%] & Suche p50 \\
+        \midrule
+        ohne Boost & 100\,\% & 0,93 & $-0{,}011$ [$-0{,}027$; $0{,}000$] & 57\,ms \\
+        Boost 1,5 (Referenz) & 100\,\% & 0,94 & -- & 57\,ms \\
+        + BM25 & 98\,\% & 0,95 & $+0{,}010$ [$-0{,}039$; $+0{,}059$] & 62\,ms \\
+        + Reranker & 99\,\% & 0,89 & $-0{,}045$ [$-0{,}095$; $+0{,}003$] & 1088\,ms \\
+        + Rewriting (Regeln) & 99\,\% & 0,95 & $+0{,}011$ [$-0{,}011$; $+0{,}035$] & 49\,ms \\
+        + Rewriting (LLM) & 68\,\% & 0,56 & $-0{,}372$ [$-0{,}475$; $-0{,}267$] & 2546\,ms \\
+        \bottomrule
+    \end{tabular}
+    \caption{Retrieval-Ablation (93 Fragen, gepaarter Bootstrap gegen die Referenz)}
+    \label{tab:ablation}
+\end{table}

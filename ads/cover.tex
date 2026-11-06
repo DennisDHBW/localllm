@@ -33,20 +33,29 @@
         }
 
         \vspace*{12mm}\departmentPhrase\space\department\\
-        \vspace*{0mm}\locationUniversityPhrase\locationUniversity\\
+        \vspace*{0mm}\locationUniversityPhrase{} \locationUniversity\\
         \vspace*{12mm}\documentAuthorPhrase\\
         \vspace*{3mm}
         {\large\textbf\documentAuthor}\\
         \vspace*{12mm}\releaseDate\\
         \vfill
         \begin{spacing}{0.8}
-            \begin{tabularx}{\textwidth}{XX}
-                \textbf{\documentPeriodPhrase}                     & \documentPeriod                \\
-                \textbf{\matriculationNumberPhrase, \coursePhrase} & \matriculationNumber, \course  \\
-                \textbf{\companyPhrase}                            & \companyName, \companyLocation \\
-                \textbf{\tutorPhrase}                              & \tutor                         \\
-                \textbf{\evaluatorPhrase}                          & \evaluator
-            \end{tabularx}
+            % Eigene Dokumenttypen (z. B. Konzeptarbeit): ohne Dualen Partner und betrieblichen Betreuer
+            \ifSpecialDocument{%
+                \begin{tabular}{@{}p{0.47\textwidth}p{0.47\textwidth}@{}}
+                    \textbf{\documentPeriodPhrase}                     & \documentPeriod               \\
+                    \textbf{\matriculationNumberPhrase, \coursePhrase} & \matriculationNumber, \course \\
+                    \textbf{Dozent}                                    & \evaluator
+                \end{tabular}%
+            }{%
+                \begin{tabular}{@{}p{0.47\textwidth}p{0.47\textwidth}@{}}
+                    \textbf{\documentPeriodPhrase}                     & \documentPeriod                \\
+                    \textbf{\matriculationNumberPhrase, \coursePhrase} & \matriculationNumber, \course  \\
+                    \textbf{\companyPhrase}                            & \companyName, \companyLocation \\
+                    \textbf{\tutorPhrase}                              & \tutor                         \\
+                    \textbf{\evaluatorPhrase}                          & \evaluator
+                \end{tabular}%
+            }
         \end{spacing}
     \end{center}
 \end{titlepage}

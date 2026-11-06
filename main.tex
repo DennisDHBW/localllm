@@ -27,12 +27,9 @@
 \pagenumbering{Roman}
 
 % Restriction notices
-\ifDocType{T3100}{%
-    % no restricition notices for semester paper
-}{%
-    \input{ads/restrictionNotices}
-    \newpage
-}%
+% Kein Sperrvermerk: Die Arbeit enthält keine vertraulichen Firmendaten.
+% \input{ads/restrictionNotices}
+% \newpage
 
 % Declaration
 \input{ads/declaration}
@@ -100,9 +97,16 @@
 
 \pagestyle{headings}
 
-% Content
-\input{content/chapter/01/main.tex}
-\input{content/chapter/02/main.tex}
+% Content: Kapitel ohne Seitenumbruch (Umfangsvorgabe 5-8 Seiten)
+\begingroup
+\RedeclareSectionCommand[style=section, beforeskip=-1.2\baselineskip, afterskip=0.6\baselineskip, font=\Large\bfseries]{chapter}
+\input{content/chapter/01_problemstellung/main.tex}
+\input{content/chapter/02_architektur/main.tex}
+\input{content/chapter/03_vorverarbeitung/main.tex}
+\input{content/chapter/04_retrieval/main.tex}
+\input{content/chapter/05_evaluation/main.tex}
+\input{content/chapter/06_reflexion/main.tex}
+\endgroup
 
 \clearpage
 

@@ -1,0 +1,27 @@
+%!TEX root = ../../../main.tex
+
+\chapter{Problem, Use Case und Daten}
+\label{chap:problem}
+
+\paragraph{Problem (Leitfrage~1).} In einem Haushalt sammeln sich Rechnungen und Verträge für Strom, Heizstrom, Wasser, Mobilfunk, Versicherung und Abos. Die Fragen dazu lauten selten \enquote{Was steht auf Seite~2?}, sondern \enquote{Welche Verträge kann ich bis März kündigen?} oder \enquote{Stimmt der Abschlag der Rechnung mit dem Vertrag überein?}. Der Agent beantwortet solche Fragen über alle Dokumente, belegt jede Aussage mit einer nummerierten Quelle und sagt ausdrücklich, wenn kein Beleg vorliegt. Weil die Dokumente IBAN, Adressen und Gesundheitsdaten enthalten, läuft alles lokal auf einem Laptop (16\,GB RAM, keine \gls{GPU}) mit Ollama \cite{ollama} und ChromaDB \cite{chromadb}.
+
+\paragraph{Trägt die Grundidee?} Klassisches \gls{RAG} \cite{lewis2020} trägt nur zwei der fünf Fragetypen (Tabelle~\ref{tab:fragetypen}). Bei Listen schneidet Top-$k$ ab, ein 7B-Modell rechnet Fristen mit Monatsenden und Verlängerungen nicht zuverlässig, und Multi-Hop-Fragen brauchen zwei Dokumente zugleich. Ich habe die Idee daher an drei Stellen angepasst: Verträge bekommen geprüfte Kerndaten, und die Fristen berechnet Python. Fragen arbeiten mit einem ausdrücklichen Stichtag, weil \enquote{bis März} mehrdeutig ist. Rechnung und Vertrag werden über Kunden- und Vertragsnummer verknüpft.
+
+\begin{table}[H]
+    \centering\small
+    \begin{tabularx}{\textwidth}{@{}l Y Y@{}}
+        \toprule
+        \textbf{Typ} & \textbf{Beispiel} & \textbf{Was die Antwort braucht} \\
+        \midrule
+        a) Tabelle/Rechnen & Arbeitsstunden auf der Werkstattrechnung & Tabellenzeile mit Spaltenkopf \\
+        b) Text/Gliederung & Kündigungsfrist der Kfz-Versicherung & Textstelle im richtigen Kapitel \\
+        c) Multi-Hop & Abschlag Heizstromrechnung gegen Vertrag & Rechnung \emph{und} Vertrag, verknüpft \\
+        d) Liste & Verträge, die zum 31.03.2027 enden können & alle Verträge, Fristen berechnet \\
+        e) ohne Beleg & \enquote{Wann endet mein Gasvertrag?} & Erkennen, dass nichts vorliegt \\
+        \bottomrule
+    \end{tabularx}
+    \caption{Fragetypen und der Zugriff, den sie erfordern}
+    \label{tab:fragetypen}
+\end{table}
+
+\paragraph{Daten (Leitfrage~2).} Der Bestand umfasst 16 synthetische Dokumente mit realen Layouts: zehn Rechnungen als PDF (darunter Strom-, Heizstrom- und Wasserabrechnung mit Zweitarif-Tabellen und eine Verbrauchsübersicht, deren Monatswerte nur im Balkendiagramm stehen) und sechs Verträge, je drei als DOCX und als PDF. Die Verträge erzeugt ein Skript aus festen Sollwerten; ihre Kunden- und Vertragsnummern passen zu den Rechnungen. Zwei Abweichungen sind Absicht: Der Heizstromvertrag nennt 225\,€ Abschlag, die Rechnung berechnet 220\,€, und der Wasservertrag ist nicht kündbar. Kassenbons und ein Sammel-PDF mit Duplikaten habe ich entfernt.

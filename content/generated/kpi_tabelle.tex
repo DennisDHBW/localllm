@@ -1,0 +1,41 @@
+% automatisch erzeugt von src/eval/latex.py
+\begin{table}[tp]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabularx}{\textwidth}{@{}l l Y Y Y Y@{}}
+\toprule
+\textbf{KPI} & \textbf{Ziel} & \textbf{V1 P1} & \textbf{V1 P2} & \textbf{V2 P1} & \textbf{V2 P2} \\
+\midrule
+\multicolumn{6}{@{}l}{\textit{Qualität}} \\
+Korrektheit & $\geq$ 80 \% & 53\,\% [37--68] & 53\,\% [37--68] & 48\,\% [36--61] & 52\,\% [39--64] \\
+Treue & $\geq$ 95 \% & 96\,\% [91--99] & 98\,\% [95--100] & 98\,\% [96--100] & 82\,\% [69--92] \\
+Halluzinationsrate & $\leq$ 5 \% & 16\,\% [7--30] & 11\,\% [4--24] & 10\,\% [5--21] & 22\,\% [14--35] \\
+Zitationsrate & $\geq$ 90 \% & 90\,\% [70--97] & 89\,\% [67--97] & 94\,\% [80--98] & 52\,\% [37--67] \\
+Zitationspräzision & $\geq$ 85 \% & 65\,\% [43--82] & 67\,\% [44--84] & 88\,\% [73--95] & 52\,\% [37--67] \\
+Enthaltung & $\geq$ 90 \% & 86\,\% [49--97] & 86\,\% [49--97] & 60\,\% [31--83] & 60\,\% [31--83] \\
+Fehl-Enthaltung & $\leq$ 10 \% & 35\,\% [21--53] & 42\,\% [26--59] & 31\,\% [20--45] & 17\,\% [9--30] \\
+Recall@5 & $\geq$ 90 \% & 40\,\% [26--56] & 40\,\% [26--56] & 85\,\% [76--93] & 85\,\% [76--93] \\
+Precision@5 & $\geq$ 60 \% & 43\,\% [26--59] & 43\,\% [26--59] & 72\,\% [61--82] & 72\,\% [61--82] \\
+MRR & $\geq$ 0,80 & 0,49 [0,33--0,65] & 0,49 [0,33--0,65] & 0,86 [0,77--0,95] & 0,86 [0,77--0,95] \\
+Beleg@5 & $\geq$ 85 \% & 52\,\% [34--69] & 52\,\% [34--69] & 77\,\% [63--87] & 77\,\% [63--87] \\
+Feldgenauigkeit der Extraktion & $\geq$ 95 \% & 49\,\% [41--58] & 49\,\% [41--58] & 96\,\% [91--98] & 96\,\% [91--98] \\
+\multicolumn{6}{@{}l}{\textit{Agent}} \\
+Tool-Selection-Accuracy & $\geq$ 85 \% & -- & 10\,\% [3--25] & -- & 75\,\% [61--85] \\
+Schritte je Frage & $\leq$ 4 & 0,0 [0,0--0,0] & 0,7 [0,4--1,0] & 0,0 [0,0--0,0] & 1,3 [1,1--1,4] \\
+\multicolumn{6}{@{}l}{\textit{Effizienz}} \\
+Latenz p50 & $\leq$ 60 s & 105\,s [92--136] & 176\,s [64--292] & 28\,s [11--38] & 36\,s [30--57] \\
+Latenz p95 & $\leq$ 180 s & 254\,s [173--1876] & 948\,s [550--2935] & 62\,s [50--76] & 134\,s [105--195] \\
+Tokens/s & $\geq$ 5 & 4,2 [3,9--4,4] & 3,5 [3,3--3,7] & 5,5 [5,4--5,5] & 5,1 [5,0--5,2] \\
+Spitzen-RAM & $\leq$ 12 GB & 8,2\,GB & 8,2\,GB & 6,6\,GB & 9,1\,GB \\
+Ingest-Zeit je Dokument & $\leq$ 120 s & -- & -- & 154\,s [140--171] & 154\,s [140--171] \\
+Rewriting-Latenz & $<$ 500 ms & 0\,ms [0--0] & 0\,ms [0--0] & 2776\,ms [2546--2919] & 2776\,ms [2546--2919] \\
+\multicolumn{6}{@{}l}{\textit{Robustheit}} \\
+Konsistenz bei Wiederholung & $\geq$ 90 \% & 100\,\% [70--100] & 100\,\% [70--100] & 100\,\% [88--100] & 100\,\% [88--100] \\
+Fehlerquote & $\leq$ 2 \% & 0\,\% [0--9] & 0\,\% [0--9] & 0\,\% [0--6] & 0\,\% [0--6] \\
+Ausfallquote & 0 \% & 0\,\% [0--9] & 0\,\% [0--9] & 0\,\% [0--6] & 0\,\% [0--6] \\
+\bottomrule
+\end{tabularx}
+\caption{KPIs der Ausgangsmessung (Version1) und der Schlussmessung (Version2) auf denselben Fragen, Punktwert mit 95-\%-Intervall (Anteile: Wilson, Mittelwerte und Perzentile: Bootstrap)}
+\label{tab:kpis}
+\end{table}

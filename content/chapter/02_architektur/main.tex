@@ -1,0 +1,51 @@
+%!TEX root = ../../../main.tex
+
+\chapter{Architektur des Agenten}
+\label{chap:architektur}
+
+Abbildung~\ref{fig:architektur} zeigt den Aufbau. Er ist \emph{lokal}, weil jeder Modellaufruf über \texttt{src/llm.py} an Ollama auf \texttt{localhost} geht. Er ist \emph{modular}: Ingestion, Enrichment, Retrieval und Agent sind eigene Pakete, gekoppelt über Dateien und ChromaDB. \emph{Agentisch} ist P2, in dem das Modell die Werkzeuge wählt. \emph{Systematisch getestet} wird über die KPI-Suite und 82 Unit-Tests ohne Sprachmodell.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[font=\scriptsize, node distance=3mm and 4mm,
+    box/.style={draw, rounded corners=2pt, align=center, minimum height=8mm, inner sep=2pt},
+    store/.style={box, fill=gray!12}, llmbox/.style={box, fill=blue!8}, arr/.style={-{Stealth[length=1.6mm]}}]
+  \node[box] (raw) {PDF / DOCX\\\texttt{data/raw}};
+  \node[box, right=of raw] (parse) {DocumentParser\\Tabellen zuerst, Font-\\Heuristik, Bilder};
+  \node[store, right=of parse] (json) {Ebene 1: JSON\\\texttt{<datei>\_chunks.json}};
+  \node[llmbox, below=of json] (enrich) {TableSummarizer,\\ImageCaptioner (gemma3)\\Kerndaten (qwen2.5)};
+  \node[store, left=of enrich] (cache) {Ebene 2: DiskCache\\SHA-256};
+  \node[store, right=of json, xshift=2mm] (chroma) {Ebene 3: ChromaDB\\nomic-embed-text\\{[Ordner | Datei | Kapitel]}};
+  \node[box, below=10mm of chroma] (ret) {Retriever: Top-20,\\$\text{final}=\text{base}\times\text{boost}$};
+  \node[llmbox, below left=8mm and -6mm of ret] (p1) {P1 Evidence-First\\Evidenz-Panel $\rightarrow$ Klick\\$\rightarrow$ Synthese};
+  \node[llmbox, below right=8mm and -6mm of ret] (p2) {P2 ReAct (llama3.1)\\7 Werkzeuge, u.\,a. Kerndaten\\und Fristen in Python};
+  \draw[arr] (raw) -- (parse); \draw[arr] (parse) -- (json); \draw[arr] (json) -- (enrich);
+  \draw[arr, <->] (enrich) -- (cache); \draw[arr] (json) -- (chroma); \draw[arr] (chroma) -- (ret);
+  \draw[arr] (ret) -- (p1); \draw[arr] (ret) -- (p2);
+\end{tikzpicture}
+\caption{Architektur: drei Speicherebenen, gemeinsames Retrieval, zwei Workflows}
+\label{fig:architektur}
+\end{figure}
+
+\paragraph{Zwei Workflows.} \emph{P1 (Evidence-First)} ist eine feste Pipeline. \texttt{build\_evidence()} ordnet die Treffer nach Ordner, Datei und Kapitel und färbt sie nach Relevanz: grün über 0,7, gelb von 0,4 bis 0,7, rot darunter. Erst nach dem Klick auf \enquote{Antwort erzeugen} baut \texttt{build\_context()} den Kontext mit Quellen \texttt{[1]}, \texttt{[2]}, und das Modell formuliert. \emph{P2} folgt ReAct \cite{yao2023}: Das Modell ruft per nativem Tool-Calling ein Werkzeug auf und erhält die Beobachtung mit fortlaufenden Belegnummern. So geht es weiter, bis es ohne Werkzeug antwortet. Die Quellenliste unter jeder Antwort erzeugt der Code aus den zitierten Nummern, nie das Modell.
+
+\paragraph{Werkzeuge (Leitfrage~4).} Zu den fünf Werkzeugen aus der Vorlesung kommen zwei hinzu (Tabelle~\ref{tab:werkzeuge}). Aus Version1 sind 15 Werkzeuge entfallen, darunter fünf für den Dokumentgraphen.
+
+\begin{table}[H]
+    \centering\small
+    \begin{tabularx}{\textwidth}{@{}p{4.3cm} Y@{}}
+        \toprule
+        \textbf{Werkzeug} & \textbf{Zweck} \\
+        \midrule
+        \texttt{search\_documents},\newline \texttt{search\_tables},\newline \texttt{search\_images} & Suche, gefiltert nach Chunk-Typ (Fließtext, Tabellenzeile mit Spaltenkopf, Bildbeschreibung) \\
+        \texttt{get\_document\_outline} & \texttt{heading\_stack} eines Dokuments (Gliederungsfragen) \\
+        \texttt{calculate} & Arithmetik über einen AST-Auswerter mit Whitelist, kein \texttt{eval} \\
+        \texttt{get\_key\_facts} & \emph{Zusatz:} Kerndaten eines Dokuments und die über Kunden- und Vertragsnummer verknüpften Dokumente (Typ c) \\
+        \texttt{list\_contracts} & \emph{Zusatz:} alle Verträge mit in Python berechneten Fristen, Preisgarantien und Monatsabschlägen (Typ d) \\
+        \bottomrule
+    \end{tabularx}
+    \caption{Werkzeuge in \texttt{src/agent/tools.py}}
+    \label{tab:werkzeuge}
+\end{table}
+
+\paragraph{Modellauswahl.} Gemessen habe ich auf diesem Rechner, nach Regeln, die vor der Messung feststanden (\texttt{docs/abstimmungsregeln.md}, Tabelle~\ref{tab:modelle} im Anhang). Agent ist llama3.1:8b. Es rief in allen 14 Proben ein Werkzeug nativ auf und wählte 12-mal das richtige, qwen2.5:7b nur 9-mal. Die Extraktion übernimmt qwen2.5:7b: Es war gleich genau wie llama3.1:8b, aber schneller. gemma3:4b las alle 14 Diagrammwerte. Kein Modell schaffte das Rewriting in unter 500\,ms (bestes p95: 3,2\,s).

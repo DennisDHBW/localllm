@@ -1,0 +1,25 @@
+%!TEX root = ../../../main.tex
+
+\chapter{Vorverarbeitung und Datenstrukturen}
+\label{chap:vorverarbeitung}
+
+\paragraph{Ingestion (Leitfrage~3).} Der \texttt{DocumentParser} liest PDF mit PyMuPDF und DOCX mit python-docx und erzeugt typisierte Chunks:
+\begin{enumerate}[nosep, leftmargin=*]
+    \item \textbf{Tabellen zuerst.} \texttt{find\_tables()} liefert die Flächen. Jede Datenzeile wird ein \texttt{table\_row}-Chunk \enquote{Spalte: Wert | Spalte: Wert}, der Spaltenkopf steht also in jeder Zeile. Erkennt PyMuPDF nur die Kopfzeile (drei Rechnungen), rekonstruiere ich die Zeilen aus den Wortpositionen. An dieser Stelle stürzte Version1 bei allen drei PDF-Verträgen ab.
+    \item \textbf{Überschriften per Font-Heuristik:} ab 1,25-facher Grundschrift oder fett ab 1,05-fach. Eine neue Überschrift ersetzt im \texttt{heading\_stack} alle Einträge gleicher und tieferer Ebene. Version1 stapelte § 1, § 2, § 3 übereinander. Beträge, Datumsangaben, fette Feldwerte und fette Wörter im Satz gelten nicht als Überschrift. Bei DOCX zählen die Formatvorlagen.
+    \item \textbf{Absätze:} unter 20 Zeichen an den vorigen Chunk desselben Kapitels gehängt, über 1500 Zeichen an Satzgrenzen geteilt.
+    \item \textbf{Bilder:} Bytes, Seite und Bounding Box werden gespeichert. gemma3:4b beschreibt jedes Diagramm mit allen ablesbaren Werten.
+\end{enumerate}
+Alle Elemente einer Seite werden nach ihrer Position sortiert, so erbt jede Tabellenzeile ihr Kapitel. Der Bestand ergibt 436 Chunks: 246 Textblöcke, 108 Tabellenzeilen, 80 Überschriften und 2 Bildbeschreibungen.
+
+\paragraph{Speicherebenen.} Ebene~1 sind lesbare JSON-Dateien je Dokument (Listing~\ref{lst:chunk}). Ebene~2 ist ein DiskCache mit SHA-256-Schlüssel über Modell, Prompt-Version und Inhalt. Eine Parser-Änderung kostet so keine neuen Modellaufrufe. Ebene~3 ist ChromaDB (Kosinus, 768 Dimensionen) mit Metadaten zum Filtern. Ein Manifest mit SHA-256 je Quelle verarbeitet nur geänderte Dokumente neu.
+
+\begin{lstlisting}[language={}, basicstyle=\ttfamily\scriptsize, caption={Ein \texttt{table\_row}-Chunk (gekürzt) und der eingebettete Text}, label=lst:chunk, frame=single, breaklines=true]
+{"chunk_type": "table_row", "page_number": 1,
+ "content": "Position: Arbeitspreis | Preis: 34,50 ct/kWh | Basis: netto",
+ "heading_stack": ["Stromliefervertrag NeckarÖko Basis", "§ 3 Preise"],
+ "metadata": {"filename": "Vertrag_Strom_NeckarStrom.pdf", "folder": "Vertraege", ...}}
+eingebettet: "search_document: [Verträge | Vertrag_Strom_NeckarStrom.pdf | ... > § 3 Preise] Position: ..."
+\end{lstlisting}
+
+\paragraph{Kerndaten.} qwen2.5:7b füllt pro Dokument per Structured Output ein \gls{JSON}-Schema mit 19 Feldern: Nummern, Beträge, Laufzeit, Verlängerung, Kündigungsfrist, Preisgarantie, Abschlag und Turnus. \texttt{verify()} prüft jeden Wert gegen den Dokumenttext. Was dort nicht vorkommt, wird verworfen. 96\,\% der Felder stimmen mit den Sollwerten überein, in Version1 waren es 49\,\%.
