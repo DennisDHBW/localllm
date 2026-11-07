@@ -3,7 +3,7 @@
 \chapter{Architektur des Agenten}
 \label{chap:architektur}
 
-Abbildung~\ref{fig:architektur} zeigt den Aufbau. Er ist \emph{lokal}, weil jeder Modellaufruf über \texttt{src/llm.py} an Ollama auf \texttt{localhost} geht. Er ist \emph{modular}: Ingestion, Enrichment, Retrieval und Agent sind eigene Pakete, gekoppelt über Dateien und ChromaDB. \emph{Agentisch} ist P2, in dem das Modell die Werkzeuge wählt. \emph{Systematisch getestet} wird über die KPI-Suite und 82 Unit-Tests ohne Sprachmodell.
+Abbildung~\ref{fig:architektur} zeigt den Aufbau. Er ist \emph{lokal}, weil jeder Modellaufruf über \texttt{src/llm.py} an Ollama auf \texttt{localhost} geht. Er ist \emph{modular}: Ingestion, Enrichment, Retrieval und Agent sind eigene Pakete, gekoppelt über Dateien und ChromaDB. \emph{Agentisch} ist P2, in dem das Modell die Werkzeuge wählt. \emph{Systematisch getestet} wird über die KPI-Suite und 88 Unit-Tests ohne Sprachmodell.
 
 \begin{figure}[H]
 \centering
