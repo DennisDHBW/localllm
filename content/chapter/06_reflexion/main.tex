@@ -3,14 +3,13 @@
 \chapter{Reflexion}
 \label{chap:reflexion}
 
-\paragraph{Trägt die Grundidee?} Teilweise. Datensouveränität ist auf einem Laptop ohne Grafikkarte erreichbar: Kein Dokument verlässt den Rechner, eine Antwort dauert im Median eine halbe Minute. Alles vor und nach dem Sprachmodell wurde messbar besser. Dazu gehören Parser, Kerndaten, Suche, Fristberechnung, Quellenliste und Bewertung. Die Korrektheit bestimmt aber das 8B-Modell, das Belege liest und formuliert. Sie blieb bei rund der Hälfte.
+\paragraph{Trägt die Grundidee?} Teilweise. Datensouveränität ist auf einem Laptop ohne Grafikkarte erreichbar: Kein Dokument verlässt den Rechner, eine Antwort dauert im Median eine halbe bis knapp zwei Minuten. Alles vor und nach dem Sprachmodell wurde messbar besser. Dazu gehören Parser, Kerndaten, Suche, Fristberechnung, Quellenliste und Bewertung. Die Korrektheit bestimmt aber das 8B-Modell, das Belege liest und formuliert. Sie blieb bei rund der Hälfte.
 \begin{enumerate}[nosep, leftmargin=*]
-    \item \textbf{Die Suche war nicht der Engpass.} Recall@5 lag schon ohne Zusätze bei 100\,\%. Die Fehler entstehen danach: Das Modell lehnt trotz Beleg ab oder liest die falsche Zeile.
-    \item \textbf{Was Code entscheidet, stimmt.} Fristfragen löst P2 alle, weil Python rechnet. Dass Rechnen ins Werkzeug gehört \cite{schick2023}, zeigt sich hier am deutlichsten.
-    \item \textbf{Abstimmen heißt Überanpassen.} 81\,\% auf dem Entwicklungssatz, 35\,\% auf ungesehenen Fragen. Ohne versiegelten Testsatz wäre mir das entgangen.
-    \item \textbf{Auch die Bewertung braucht Tests.} Ein fehlendes Muster für die eigene Ablehnungsformel ließ Version2 um 11 bis 14 Prozentpunkte schlechter aussehen. Eine fehlende Auswahlregel ließ ein Synthesemodell ungeprüft.
+    \item \textbf{Die Suche war nicht der Engpass.} Recall@5 lag schon ohne Zusätze bei 100\,\%. Das Modell lehnt trotz Beleg ab oder liest die falsche Zeile.
+    \item \textbf{Was Code entscheidet, stimmt.} Fristfragen löst P2 alle, weil Python rechnet; Rechnen gehört ins Werkzeug \cite{schick2023}. Prüft Code die abgelesenen Werte, sinken die Ablehnungen, die Korrektheit kaum.
+    \item \textbf{Abstimmen heißt Überanpassen.} 81\,\% auf dem Entwicklungssatz, 35\,\% auf ungesehenen Fragen.
+    \item \textbf{Auch die Bewertung braucht Tests.} Ein fehlendes Muster für die eigene Ablehnungsformel ließ Version2 um 11 bis 14 Prozentpunkte schlechter aussehen.
     \item \textbf{Mehr Autonomie ist nicht automatisch besser.} Eine Weiche nach Fragetyp wie in Adaptive-RAG \cite{jeong2024} lag auf neuen Fragen 10 Prozentpunkte unter P1 allein.
-    \item \textbf{Lokal heißt Ressourcenplanung.} Zwei Läufe brachen ab, weil Ollama hier auf 9\,GB begrenzt ist.
 \end{enumerate}
 
-\paragraph{Ausblick.} Standard wäre P1; Tabellenwerte würde ich deterministisch aus \texttt{chunks.json} lesen und auf fremd geschriebenen Fragen prüfen.
+\paragraph{Ausblick.} Listenfragen gehören als Filter über die Kerndaten in den Code.
