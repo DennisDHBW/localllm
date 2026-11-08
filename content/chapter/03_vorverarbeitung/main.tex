@@ -3,7 +3,7 @@
 \chapter{Vorverarbeitung und Suche}
 \label{chap:vorverarbeitung}
 
-\paragraph{Einlesen.} Der Parser liest PDF mit PyMuPDF und DOCX mit python-docx. Zuerst sucht er Tabellen: Jede Zeile wird ein eigener Block \enquote{Spalte: Wert | Spalte: Wert}, so steht der Spaltenkopf bei jeder Zahl. Überschriften erkennt er an Schriftgröße (ab 1,25-fach) oder Fettdruck und führt einen Kapitelpfad mit. Absätze unter 20 Zeichen hängt er an den vorigen Block, über 1500 Zeichen teilt er an Satzgrenzen. Bilder beschreibt gemma3:4b mit allen ablesbaren Werten. Aus 16 Dokumenten entstehen 436 Blöcke.
+\paragraph{Einlesen.} Der Parser liest PDF mit PyMuPDF und DOCX mit python-docx. Zuerst sucht er Tabellen: Jede Zeile wird ein eigener Block \enquote{Spalte: Wert | Spalte: Wert}, so steht der Spaltenkopf bei jeder Zahl. Überschriften erkennt er an Schriftgröße (ab 1,25-fach) oder Fettdruck und führt einen Kapitelpfad mit. Bilder beschreibt gemma3:4b mit allen ablesbaren Werten. Aus 16 Dokumenten entstehen 436 Blöcke.
 
 \begin{lstlisting}[language={}, basicstyle=\ttfamily\scriptsize, caption={Eine Tabellenzeile im JSON-Zwischenformat (gekürzt)}, label=lst:chunk, frame=single, breaklines=true]
 {"chunk_type": "table_row", "content": "Gebührenart: Schmutzwassergebühr (Kanal) | Menge / Bemessung: 125,0 m³ | Satz: 2,80 €/m³ | ... | Brutto (€): 416,50",
