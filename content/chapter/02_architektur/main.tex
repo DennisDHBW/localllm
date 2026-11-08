@@ -1,11 +1,11 @@
 %!TEX root = ../../../main.tex
 
-\chapter{Architektur des Agenten}
+\chapter{Architektur und ihre Bausteine}
 \label{chap:architektur}
 
-Abbildung~\ref{fig:architektur} zeigt den Aufbau. Er ist \emph{lokal}, weil jeder Modellaufruf über \texttt{src/llm.py} an Ollama auf \texttt{localhost} geht. Er ist \emph{modular}: Ingestion, Enrichment, Retrieval und Agent sind eigene Pakete, gekoppelt über Dateien und ChromaDB. \emph{Agentisch} ist P2, in dem das Modell die Werkzeuge wählt. \emph{Systematisch getestet} wird über die KPI-Suite und 88 Unit-Tests ohne Sprachmodell.
+Abbildung~\ref{fig:architektur} zeigt den Aufbau. Oben werden die Dokumente einmal eingelesen und in drei Ebenen gespeichert, unten beantworten zwei Prototypen die Fragen auf verschiedene Art. Beide nutzen dieselbe Suche.
 
-\begin{figure}[H]
+\begin{figure}[tb]
 \centering
 \begin{tikzpicture}[font=\scriptsize, node distance=3mm and 4mm,
     box/.style={draw, rounded corners=2pt, align=center, minimum height=8mm, inner sep=2pt},
@@ -13,39 +13,41 @@ Abbildung~\ref{fig:architektur} zeigt den Aufbau. Er ist \emph{lokal}, weil jede
   \node[box] (raw) {PDF / DOCX\\\texttt{data/raw}};
   \node[box, right=of raw] (parse) {DocumentParser\\Tabellen zuerst, Font-\\Heuristik, Bilder};
   \node[store, right=of parse] (json) {Ebene 1: JSON\\\texttt{<datei>\_chunks.json}};
-  \node[llmbox, below=of json] (enrich) {TableSummarizer,\\ImageCaptioner (gemma3)\\Kerndaten (qwen2.5)};
+  \node[llmbox, below=of json] (enrich) {Tabellen-Summary,\\Bildbeschreibung (gemma3)\\Kerndaten (qwen2.5)};
   \node[store, left=of enrich] (cache) {Ebene 2: DiskCache\\SHA-256};
   \node[store, right=of json, xshift=2mm] (chroma) {Ebene 3: ChromaDB\\nomic-embed-text\\{[Ordner | Datei | Kapitel]}};
-  \node[box, below=10mm of chroma] (ret) {Retriever: Top-20,\\$\text{final}=\text{base}\times\text{boost}$};
-  \node[llmbox, below left=8mm and -6mm of ret] (p1) {P1 Evidence-First\\Evidenz-Panel $\rightarrow$ Klick\\$\rightarrow$ Synthese};
-  \node[llmbox, below right=8mm and -6mm of ret] (p2) {P2 ReAct (llama3.1)\\7 Werkzeuge, u.\,a. Kerndaten\\und Fristen in Python};
+  \node[box, below=10mm of chroma] (ret) {Suche: Top-20,\\$\text{final}=\text{base}\times\text{boost}$};
+  \node[llmbox, below left=8mm and -6mm of ret] (p1) {P1 Evidence-First\\Belege $\rightarrow$ Klick $\rightarrow$ Entwurf\\(qwen2.5), Code prüft};
+  \node[llmbox, below right=8mm and -6mm of ret] (p2) {P2 ReAct (llama3.1)\\wählt selbst aus\\8 Werkzeugen};
   \draw[arr] (raw) -- (parse); \draw[arr] (parse) -- (json); \draw[arr] (json) -- (enrich);
   \draw[arr, <->] (enrich) -- (cache); \draw[arr] (json) -- (chroma); \draw[arr] (chroma) -- (ret);
   \draw[arr] (ret) -- (p1); \draw[arr] (ret) -- (p2);
 \end{tikzpicture}
-\caption{Architektur: drei Speicherebenen, gemeinsames Retrieval, zwei Workflows}
+\caption{Architektur: Einlesen in drei Speicherebenen, gemeinsame Suche, zwei Prototypen}
 \label{fig:architektur}
 \end{figure}
 
-\paragraph{Zwei Workflows.} \emph{P1 (Evidence-First)} ist eine feste Pipeline. \texttt{build\_evidence()} ordnet die Treffer nach Ordner, Datei und Kapitel und färbt sie nach Relevanz: grün über 0,7, gelb von 0,4 bis 0,7, rot darunter. Erst nach dem Klick auf \enquote{Antwort erzeugen} baut \texttt{build\_context()} den Kontext mit Quellen \texttt{[1]}, \texttt{[2]}, und das Modell formuliert. \emph{P2} folgt ReAct \cite{yao2023}: Das Modell ruft per nativem Tool-Calling ein Werkzeug auf und erhält die Beobachtung mit fortlaufenden Belegnummern. So geht es weiter, bis es ohne Werkzeug antwortet. Die Quellenliste unter jeder Antwort erzeugt der Code aus den zitierten Nummern, nie das Modell.
+\paragraph{Bausteine.} Tabelle~\ref{tab:bausteine} nennt für jeden Baustein, was er tut und warum ich ihn brauche. Jeder löst ein Problem aus Tabelle~\ref{tab:fragetypen}. Bausteine, die keines lösten, habe ich entfernt (Kapitel~\ref{chap:reverse}).
 
-\paragraph{Werkzeuge (Leitfrage~4).} Zu den fünf Werkzeugen aus der Vorlesung kommen zwei hinzu (Tabelle~\ref{tab:werkzeuge}). Aus Version1 sind 15 Werkzeuge entfallen, darunter fünf für den Dokumentgraphen.
-
-\begin{table}[H]
-    \centering\small
-    \begin{tabularx}{\textwidth}{@{}p{4.3cm} Y@{}}
+\begin{table}[tb]
+    \centering\footnotesize\setstretch{1.05}
+    \begin{tabularx}{\textwidth}{@{}p{2.9cm} Y Y@{}}
         \toprule
-        \textbf{Werkzeug} & \textbf{Zweck} \\
+        \textbf{Baustein (Datei)} & \textbf{Was er tut} & \textbf{Warum ich ihn brauche} \\
         \midrule
-        \texttt{search\_documents},\newline \texttt{search\_tables},\newline \texttt{search\_images} & Suche, gefiltert nach Chunk-Typ (Fließtext, Tabellenzeile mit Spaltenkopf, Bildbeschreibung) \\
-        \texttt{get\_document\_outline} & \texttt{heading\_stack} eines Dokuments (Gliederungsfragen) \\
-        \texttt{calculate} & Arithmetik über einen AST-Auswerter mit Whitelist, kein \texttt{eval} \\
-        \texttt{get\_key\_facts} & \emph{Zusatz:} Kerndaten eines Dokuments und die über Kunden- und Vertragsnummer verknüpften Dokumente (Typ c) \\
-        \texttt{list\_contracts} & \emph{Zusatz:} alle Verträge mit in Python berechneten Fristen, Preisgarantien und Monatsabschlägen (Typ d) \\
+        Parser\newline\texttt{ingestion/parser.py} & zerlegt PDF und DOCX in Textblöcke, Tabellenzeilen, Überschriften, Bilder & Ein Text-Splitter zerschneidet Tabellen; dann fehlt zur Zahl der Spaltenkopf (a). \\
+        Anreicherung\newline\texttt{enrichment/} & gemma3:4b beschreibt Diagramme und fasst Tabellen zusammen & Werte, die nur im Bild stehen, wären sonst nicht suchbar. \\
+        Kerndaten\newline\texttt{enrichment/facts.py} & qwen2.5:7b füllt je Dokument 19 Felder; Code prüft jeden Wert im Text & Über Kunden- und Vertragsnummer finde ich zur Rechnung den Vertrag (c). \\
+        Suche\newline\texttt{retrieval/search.py} & Embedding-Suche, bevorzugt Treffer, deren Datei oder Kapitel zur Frage passt & Sonst landen ähnliche Stellen aus fremden Dokumenten oben. \\
+        Fristrechner\newline\texttt{agent/contracts.py} & berechnet Kündigungstermine aus Laufzeit, Verlängerung und Stichtag & Ein 8B-Modell rechnet mit Monatsenden falsch (d). \\
+        Bestandsprüfung\newline\texttt{agent/facts\_answer.py} & lehnt ab, wenn die gefragte Dokumentart (\enquote{Gasvertrag}) nicht vorliegt & Sonst antwortet das Modell mit einem ähnlichen Dokument (e). \\
+        Geprüfte Antwort\newline\texttt{agent/verify.py} & Modell liefert Werte mit Belegnummer als JSON; Code prüft sie und rechnet & Das Modell soll nur lesen, nicht rechnen und nichts erfinden. \\
         \bottomrule
     \end{tabularx}
-    \caption{Werkzeuge in \texttt{src/agent/tools.py}}
-    \label{tab:werkzeuge}
+    \caption{Bausteine: Aufgabe und Begründung}
+    \label{tab:bausteine}
 \end{table}
 
-\paragraph{Modellauswahl.} Gemessen habe ich auf diesem Rechner, nach Regeln, die vor der Messung feststanden (\texttt{docs/abstimmungsregeln.md}, Tabelle~\ref{tab:modelle} im Anhang). Agent ist llama3.1:8b. Es rief in allen 14 Proben ein Werkzeug nativ auf und wählte 12-mal das richtige, qwen2.5:7b nur 9-mal. Die Extraktion übernimmt qwen2.5:7b: Es war gleich genau wie llama3.1:8b, aber schneller. gemma3:4b las alle 14 Diagrammwerte. Kein Modell schaffte das Rewriting in unter 500\,ms (bestes p95: 3,2\,s).
+\paragraph{Zwei Prototypen.} \emph{P1 (Evidence-First)} ist eine feste Pipeline. Die App zeigt zuerst die Belege, nach Relevanz gefärbt, damit ich die Grundlage prüfen kann. Erst auf Klick füllt qwen2.5:7b ein Formular: welche Werte aus welchem Beleg und ob gerechnet werden muss. Code prüft jeden Wert im Beleg und rechnet selbst. \emph{P2} folgt dem ReAct-Muster \cite{yao2023}: llama3.1:8b überlegt, ruft ein Werkzeug auf, liest das Ergebnis und entscheidet, ob es noch eins braucht. Das macht P2 \emph{agentisch}, denn das Modell legt den Ablauf fest, nicht ich. Zu den fünf Werkzeugen der Vorlesung (Suche, Gliederung, Rechner) habe ich drei ergänzt: Kerndaten, Vertragsliste mit berechneten Fristen und Rechnungsliste. Die Quellenliste unter jeder Antwort erzeugt bei beiden der Code, nie das Modell. Zum Vergleich messe ich \emph{P1 alt}, den Stand von P1 vor Bestandsprüfung und geprüfter Antwort.
+
+\paragraph{Passt die Architektur zur Idee?} Ja. Sie weicht genau dort von der Standard-Pipeline ab, wo Rechnungen und Verträge es verlangen: Python rechnet Fristen, weil \enquote{Kann ich bis März kündigen?} eine Rechenaufgabe ist. Kerndaten verbinden Rechnung und Vertrag, und Code prüft jede Zahl, weil eine falsche Zahl bei Geld schlimmer ist als keine. Einen Wissensgraphen (GraphRAG) habe ich bewusst nicht gebaut. Die einzige Beziehung in meinen Daten ist \enquote{Rechnung gehört zu Vertrag}, und das ist ein Vergleich der Vertragsnummer. Ein Graph hätte je Textblock einen Modellaufruf gekostet, ohne eine neue Frage beantwortbar zu machen.

@@ -1,18 +1,68 @@
 %!TEX root = ../../../main.tex
 
-\chapter{Test- und Evaluationsstrategie}
+\chapter{Testen und Bewerten}
 \label{chap:evaluation}
 
-\paragraph{Testsätze (Leitfrage~6).} Die KPI-Suite (\texttt{src/eval}) bewertet vier Sätze mit denselben Regeln. Der \emph{Kernsatz} enthält die neun Pflichtfragen: fünf Standardfragen, zwei Grenzfälle (Vorauszahlung Wasser gegen Vertrag, Verträge mit Verlängerung um ein Jahr) und zwei Fragen ohne Beleg. Der \emph{Entwicklungssatz} (54 Fragen) ist der einzige, an dem ich Fehler analysiert und Einstellungen gewählt habe. Der \emph{synthetische Satz} (51 Fragen) entsteht per Vorlage aus den Sollwerten, ähnlich der Testset-Generierung von RAGAS \cite{es2024}. Der \emph{zurückgehaltene Satz} (20 Fragen, alle fünf Typen) war vor dem Umbau geschrieben und per SHA-256 versiegelt.
+Beim Chatten wirkt ein Agent schnell gut, weil er flüssig klingt. Deshalb teste ich nach festen Regeln. Jede Testfrage hat einen Typ, einen Sollwert aus dem Dokument, ein Solldokument und einen Grund, warum sie im Test ist. Die Bewertung steht vorher fest.
 
-\paragraph{Bewertung.} Statt eines LLM-Richters wie in RAGAS \cite{es2024}, der lokal langsam und selbst unzuverlässig wäre, prüfe ich deterministisch gegen Sollwerte. Korrekt ist eine Antwort, wenn jeder Sollwert in einem nicht verneinten Satz steht. Als \emph{Halluzination} zählt eine unbelegte Zahl oder eine Antwort auf eine unbeantwortbare Frage. Die Maße folgen der Literatur: Zitation nach ALCE \cite{gao2023alce}, Recall@5 und \gls{MRR} nach \cite{manning2008}, Enthaltung nach \cite{wen2024}, Werkzeugwahl nach \cite{qin2024}, Effizienz und Robustheit nach HELM \cite{liang2023}. Jede der 23 KPIs hat in \texttt{kpis.py} eine Definition, einen Zielwert und eine Begründung. Die Intervalle sind Wilson- \cite{wilson1927} bzw.\ Bootstrap-Intervalle \cite{efron1993}. Jede Antwort wird mit Trajektorie als JSONL gespeichert, personenbezogene Daten maskiert. Version1 lief unverändert auf denselben Fragen (Tabelle~\ref{tab:kpis}).
+\paragraph{Testfragen.} Die Vorlesung verlangt fünf Standardfragen, zwei Grenzfälle und zwei Negativfragen (Tabelle~\ref{tab:kern} im Anhang). Jede Standardfrage zielt auf einen anderen Baustein (Tabelle, DOCX-Text, ähnliche Tarifzeilen, Fließtext, Diagramm), so zeigt ein Fehler, wo er entsteht. Neun Fragen sind zu wenig. Am \emph{Entwicklungssatz} (54 Fragen) durfte ich Fehler suchen; \emph{versiegelte Sätze} schreibe ich vor jedem Umbau, sichere sie mit einer Prüfsumme und messe sie nur einmal. Genau das ist passiert: Nach dem Abstimmen erreichte P1 auf dem Entwicklungssatz 81\,\%, auf ungesehenen Fragen 35\,\%. Die Ergebnisse unten stammen aus dem dritten versiegelten Satz mit 24 Fragen; Anhang~\ref{app:testsatz} begründet jede Frage einzeln.
 
-\input{content/generated/kpi_tabelle.tex}
+\section{Drei Kennzahlen}
+\label{sec:kpis}
 
-\paragraph{Ergebnis.} Version2 beantwortet nicht messbar mehr Fragen richtig als Version1: 48\,\% (P1) und 52\,\% (P2) gegen 53\,\%. Messbar besser ist alles vor dem Sprachmodell: Recall@5 stieg von 40 auf 85\,\%, die MRR von 0,49 auf 0,86, die Feldgenauigkeit von 49 auf 96\,\%, die richtige Werkzeugwahl von 10 auf 75\,\%. Die Latenz im Median sank von 105 bzw.\ 176\,s auf 28 bzw.\ 36\,s. P1 halluziniert seltener (10 statt 16\,\%) und zitiert präziser (88 statt 65\,\%). Im Kernsatz löst P2 16 von 18 Antworten, im zurückgehaltenen Satz lösen beide Prototypen nur 14 von 40. Auf dem Entwicklungssatz erreicht P1 nach der Abstimmung 81\,\%, auf ungesehenen Fragen 35\,\%. Die Abstimmung hat also vor allem Formulierungen der bekannten Fragen gelernt.
+Ich nutze drei Kennzahlen: eine für das Endergebnis und je eine für die beiden Hälften von RAG, Antwort und Suche. Für die letzten beiden nutze ich das Framework RAGAS \cite{es2024}. Es bewertet mit einem Sprachmodell als Richter, bei mir qwen2.5:7b lokal.
 
-\paragraph{P1 gegen P2.} P1 löst Tabellen- und Rechenfragen besser (12 gegen 4 von 18), weil es die Zeilen direkt im Kontext sieht. P2 liest sie über \texttt{search\_tables} falsch, etwa 8300 statt 5500\,kWh. Fristfragen löst P2 vollständig (12 von 12), weil \texttt{list\_contracts} sie berechnet. P1 löst davon nur 2 und lehnt bei 31\,\% der beantwortbaren Fragen ab. P2 halluziniert dafür häufiger (22\,\%): Nach einem Gas- oder Fernwärmevertrag gefragt, antwortet es mit dem Heizstromvertrag.
+\paragraph{1. Korrektheit (eigene Regel).} Eine Antwort ist richtig, wenn jeder Sollwert in einem Satz steht, der ihn nicht verneint. Bei Listen müssen alle erwarteten Einträge vorkommen und kein ausgeschlossener, bei Negativfragen zählt nur eine Ablehnung. \emph{Warum:} Das will ich als Nutzer wissen, und Code urteilt jedes Mal gleich. \emph{Grenze:} Sie prüft nur Sollwerte. Ein \enquote{Ja, entspricht} ohne Zahl gilt als falsch, und eine erfundene Begründung neben der richtigen Zahl fällt nicht auf.
 
-\paragraph{Weiche zwischen P1 und P2.} Eine feste Textregel ohne Sprachmodell schickt Fristen, Listen und Vergleiche an P2, alles andere an P1 (\texttt{router.py}). Die Idee stammt aus der Fehleranalyse des zurückgehaltenen Satzes; Muster und Annahmeregel R9 wurden auf dem Entwicklungssatz festgelegt (dort Gleichstand mit P1, 44 von 54). Auf Kern- und zurückgehaltenem Satz kam sie auf 59\,\% gegen 48 und 52\,\%, nicht gesichert. Deshalb habe ich 20 neue Fragen mit derselben Typmischung geschrieben und versiegelt. Zuvor kam eine Schicht ohne Sprachmodell vor die Weiche (R10): Sie beantwortet Fragen nach einem einzelnen Kerndatenfeld direkt und lehnt Dokumentarten ab, deren Bestimmungswort (\enquote{Leasing}) im Bestand fehlt. Auf dem neuen Satz (zwei Wiederholungen) erreichte P1 65\,\%, P2 nur 10\,\% bei 33\,\% Halluzinationen, die Weiche 55\,\%: $-10$ Prozentpunkte gegenüber P1, Intervall $[-20;\,-2{,}5]$. Die Schicht änderte keine Antwort. Der Vorteil der Weiche war an den alten Satz angepasst. Einschränkend stammt auch der neue Satz von mir.
+\paragraph{2. Faithfulness: Wie nah ist die Antwort an der Quelle?} Der Richter zerlegt die Antwort in einzelne Aussagen und prüft für jede, ob sie aus den Belegen des Prototyps folgt. Der Wert ist der Anteil der belegten Aussagen; 1,0 heißt \enquote{nichts erfunden}. \emph{Warum:} Die größte Gefahr ist eine überzeugende, aber erfundene Aussage über Geld oder Fristen, auch ohne Zahl. Ablehnungen enthalten keine Aussage und zählen nicht mit. \emph{Grenze:} Der Richter ist selbst ein kleines Modell. Deshalb gleiche ich sein Urteil mit meiner Zahlprüfung ab.
 
-\paragraph{Transparenz.} Die erste Schlussmessung zeigte zwei Fehler. Die Bewertung erkannte die Ablehnungsformel von Version2 nicht; korrigiert, wurden alle Läufe neu bewertet. Außerdem gab P1 in 30 von 58 Antworten nur eine Belegnummer aus. Ich habe den Prompt auf dem Entwicklungssatz korrigiert und P1 neu gemessen. Für P1 wurde der zurückgehaltene Satz damit zweimal verwendet. Beide Läufe liegen im Repository.
+\paragraph{3. Context Recall: Hat die Suche alles gefunden?} Der Richter prüft für jeden Satz der Sollantwort, ob er in den gefundenen Belegen steht. Die Sollantwort bilde ich aus der Belegstelle im Testsatz (\enquote{Laut Dokument: 2,80\,€/m³.}). \emph{Warum:} So trenne ich Suchfehler von Lesefehlern. Ist eine Antwort falsch, obwohl der Recall 1 ist, lag der Beleg vor und das Modell hat ihn falsch gelesen. \emph{Grenze:} Die Kennzahl gibt es nur für die Typen a bis c, weil Listen- und Negativfragen keine einzelne Textstelle als Soll haben.
+
+\section{Zwei Tests im Detail}
+
+\paragraph{Test 1: Rechnung gegen Vertrag (T14).} \emph{Frage:} \enquote{Wurde die Schmutzwassergebühr in der Wasserabrechnung 2024 zu dem Satz berechnet, der im Wasservertrag steht?} \emph{Warum:} Sie braucht zwei Dokumente, den Fall, für den ich die Kerndaten gebaut habe. \emph{Soll:} 2,80\,€/m³ in beiden, also \enquote{ja}. \emph{Ergebnis:} P1 antwortet \enquote{Ja, \dots\ zu dem Satz von 2,80\,€/m³ berechnet, wie im Vertrag festgelegt}. Nach meiner Regel ist das richtig, aber der Vertrag war nie unter den Belegen (Kapitel~\ref{chap:reverse}). RAGAS gibt ihr Faithfulness 0,67: Der Richter findet die unbelegte Aussage, die meine Zahlprüfung übersieht. P2 lehnt ab, obwohl beide Dokumente vorliegen.
+
+\paragraph{Test 2: Anbieter ohne Vertrag (T23).} \emph{Frage:} \enquote{Welche Kündigungsfrist hat mein Servicevertrag mit Auto \& Service Müller?} \emph{Warum:} Von diesem Anbieter gibt es eine Werkstattrechnung, aber keinen Vertrag. Die Suche findet also Treffer, und das Modell ist versucht, eine Frist zu nennen. \emph{Soll:} Ablehnung. \emph{Ergebnis:} Alle drei Varianten lehnen ab. P1 alt braucht dafür 36\,s, P1 nur 0,05\,s: Code sieht, dass es zu \enquote{Müller} nur Rechnungen gibt, und fragt das Modell gar nicht.
+
+\section{Ergebnisse}
+\label{sec:ergebnisse}
+
+Tabelle~\ref{tab:ergebnis} zeigt alle drei Kennzahlen. Beide Wiederholungen lieferten dieselben Antworten, daher stehen dort 24 Fragen. Das 95-\%-Intervall der Korrektheit (Wilson) ist breit: Ein Unterschied von ein oder zwei Fragen ist Zufall.
+
+\begin{table}[H]
+    \centering\footnotesize
+    \begin{tabular}{@{}lccccc@{}}
+        \toprule
+        & \textbf{richtig} & \textbf{Faithfulness} & \textbf{Context Recall} & \textbf{falsch abgelehnt} & \textbf{Zeit (Median)} \\
+        \midrule
+        P1 alt & 13/24 (35--72\,\%) & 0,73 & 0,70 & 6 & 49\,s \\
+        P1 & 14/24 (39--76\,\%) & 0,75 & 0,80 & 2 & 101\,s \\
+        P2 & 7/24 (15--49\,\%) & 0,68 & 0,47 & 9 & 129\,s \\
+        \bottomrule
+    \end{tabular}
+    \caption{Ergebnisse auf dem dritten versiegelten Satz (24 Fragen; Faithfulness über die 14/19/11 nicht abgelehnten Antworten, Context Recall über die 15 Fragen der Typen a--c)}
+    \label{tab:ergebnis}
+\end{table}
+
+P1 ist am häufigsten richtig und lehnt am seltensten falsch ab, braucht aber doppelt so lange wie P1 alt. Bei Faithfulness liegen alle drei um 0,7; bei so wenigen Antworten ist das kein belegbarer Unterschied. Wichtiger ist der Abgleich: Von sieben P1-Antworten, die der Richter beanstandet, sind drei echte Fehler, die meine Zahlprüfung nicht sieht (T14, T18, T24), eine ist ein von Code gerechneter Wert, der nicht wörtlich im Beleg steht, drei sind Fehlalarme. Context Recall trennt die Fehlerursachen: Bei vier der sieben falschen P1-Antworten der Typen a--c lag der Beleg vor (Lesefehler), bei drei fehlte er (Suchfehler). P2 sucht selbst und findet den Beleg nur in knapp der Hälfte der Fälle.
+
+\section{Absicherung: drei frei formulierte Fragen}
+
+Zum Schluss habe ich drei Fragen so getippt, wie ich sie im Alltag stellen würde. Soll und Kriterien standen vorher fest (\texttt{docs/stichprobe.md}): \textbf{K1} Inhalt richtig, \textbf{K2} jede Aussage belegt, \textbf{K3} direkt verständlich.
+
+\begin{table}[H]
+    \centering\footnotesize
+    \begin{tabularx}{\textwidth}{@{}l Y l c c@{}}
+        \toprule
+        & \textbf{Frage} & \textbf{Soll} & \textbf{P1} & \textbf{P2} \\
+        \midrule
+        S1 & Wie viel Strom habe ich 2024 verbraucht und was hat mich das insgesamt gekostet? & 3.400\,kWh, 1.574,37\,€ & $\times$/\checkmark/\checkmark & $\times$/$\times$/$\times$ \\
+        S2 & Krieg ich bei der Heizstromabrechnung was zurück oder muss ich nachzahlen? & 99,94\,€ zurück & \checkmark/\checkmark/\checkmark & $\times$/\checkmark/$\times$ \\
+        S3 & Wann kann ich mein Fitnessstudio kündigen? & Ablehnung & $\times$/$\times$/\checkmark & \checkmark/\checkmark/\checkmark \\
+        \bottomrule
+    \end{tabularx}
+    \caption{Stichprobe: K1/K2/K3 je Prototyp}
+    \label{tab:stichprobe}
+\end{table}
+
+P1 nennt bei S1 die Netto- statt der Bruttosumme, obwohl beide im Beleg standen: wieder ein Lesefehler. Ernster ist S3. P1 erfindet \enquote{drei Monate} und zitiert den Heizstromvertrag, denn \enquote{Fitnessstudio} kennt die Bestandsprüfung nicht als Dokumentart, und die Zahlprüfung findet die Frist im falschen Beleg. Ich habe das bewusst nicht nachträglich repariert. P2 lehnt S2 fälschlich ab und überschreitet bei S1 das Zeitlimit von 10 Minuten.

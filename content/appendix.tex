@@ -1,48 +1,90 @@
 % !TeX root =../main.tex
 
-\chapter{Fehleranalyse der Schlussmessung}
-\label{app:fehler}
-
-Falsch bewertete Antworten der Schlussmessung (erste Wiederholung), gruppiert nach Ursache aus der aufgezeichneten Trajektorie. Die vollständigen Datensätze liegen in \texttt{src/eval/results/schlussmessung2/}.
+\chapter{Testfragen mit Begründung}
+\label{app:testsatz}
 
 \begin{table}[H]
-    \centering
-    \small
-    \begin{tabularx}{\textwidth}{@{}l l Y@{}}
+    \centering\footnotesize\setstretch{1.05}
+    \begin{tabularx}{\textwidth}{@{}l l Y Y@{}}
         \toprule
-        \textbf{Ursache} & \textbf{Fragen} & \textbf{Beispiel} \\
+        \textbf{Nr.} & \textbf{Art} & \textbf{Frage (gekürzt)} & \textbf{Was sie prüft} \\
         \midrule
-        P1 lehnt trotz Beleg ab & K4, H05, H06, H12 & Zahlungsziel der Arztrechnung steht im Kontext, Antwort \enquote{nichts belegt} \\
-        P1 rechnet oder liest falsch & H04, H10, H13, H20 & Frühestes Abo-Ende 04.11.\ statt 04.12.2026 (Frist nicht deterministisch berechnet) \\
-        P2 liest Tabellenzeile falsch & H01, H02, H18 & Niedertarif 8300 statt 5500\,kWh (Zeile des Hochtarifs) \\
-        P2 lehnt nach Werkzeugaufruf ab & K3, H03, H09, H19 & Kerndaten oder Bildsuche liefern den Wert nicht, der Agent sucht nicht weiter \\
-        Antwort auf ähnlichen Vertrag & H15, H16 (P2), H16, H17 (P1) & \enquote{Fernwärme} mit dem Heizstromvertrag beantwortet \\
-        Liste unvollständig oder falsch gefiltert & H11, H12 (P2) & abgelaufene Preisgarantie als gültig aufgeführt \\
+        K1 & Standard a & Gesamtbetrag der LuminaStyle-Rechnung & Tabelle im PDF \\
+        K2 & Standard b & Mindestlaufzeit des ConnectNet-Vertrags & Textstelle im DOCX \\
+        K3 & Standard a & Arbeitspreis Hochtarif im Heizstromvertrag & richtige von zwei ähnlichen Zeilen \\
+        K4 & Standard b & Zahlungsziel der Arztrechnung & Datum im Fließtext \\
+        K5 & Standard a & Monat mit dem niedrigsten Stromverbrauch 2025 & Wert nur im Diagramm \\
+        K6 & Grenzfall c & Vorauszahlung Wasserrechnung gegen Vertrag & zwei Dokumente verknüpfen \\
+        K7 & Grenzfall d & Verträge mit Verlängerung um ein Jahr & Liste über alle Verträge \\
+        K8 & Negativ e & Grundsteuer laut Grundsteuerbescheid & Dokumentart fehlt ganz \\
+        K9 & Negativ e & Kündigungsfrist Handyvertrag bei Vodafone & Falle: Handyvertrag gibt es, aber bei ConnectNet \\
         \bottomrule
     \end{tabularx}
-    \caption{Fehlerursachen der Schlussmessung}
-    \label{tab:fehler}
+    \caption{Die neun Pflichtfragen (Kernsatz) und was jede prüft}
+    \label{tab:kern}
 \end{table}
 
-\chapter{Modellauswahl und Retrieval-Ablation}
+
+Alle 24 Fragen des dritten versiegelten Testsatzes (\texttt{src/eval/sets/heldout3.json}), geschrieben und per SHA-256 versiegelt, bevor die geprüfte Antwort gebaut wurde. Die Sollwerte stammen aus dem Rohtext der Dokumente. Ergebnis: \checkmark{} = richtig nach der Regel aus Abschnitt~\ref{sec:kpis}. Beide Wiederholungen ergaben dieselben Antworten.
+
+\begin{table}[H]
+    \centering\scriptsize
+    \setlength{\tabcolsep}{3pt}
+    \begin{tabularx}{\textwidth}{@{}l l p{5.2cm} Y c c c@{}}
+        \toprule
+        \textbf{Nr.} & \textbf{Typ} & \textbf{Frage (gekürzt)} & \textbf{Warum diese Frage} & \textbf{P1 alt} & \textbf{P1} & \textbf{P2} \\
+        \midrule
+        T01 & a & Umsatzsteuer der LuminaStyle-Rechnung & Wert in der Summenzeile unter der Tabelle, nicht in einer Position & \checkmark & \checkmark & -- \\
+        T02 & a & Versicherungssteuer der NordStern-Beitragsrechnung & Steuer und Beitrag sind zwei ähnliche Beträge & \checkmark & \checkmark & -- \\
+        T03 & a & Nachtstrom (NT) netto, Heizstrom 2024 & Hoch- und Niedertarif stehen in Nachbarzeilen & \checkmark & \checkmark & \checkmark \\
+        T04 & a & Blutentnahme auf der Arztrechnung & kleine Position unter vielen & \checkmark & \checkmark & -- \\
+        T05 & a & Räderwechsel netto, Werkstatt & Netto- statt Bruttospalte & \checkmark & \checkmark & -- \\
+        T06 & a & zwei Ladekabel brutto inkl.\ 19\,\% & Rechnen: 25,04\,€ $\times$ 1,19 = 29,80\,€ & -- & \checkmark & -- \\
+        T07 & b & erste Laufzeit des Heizstromvertrags & Textstelle im DOCX-Vertrag & -- & -- & \checkmark \\
+        T08 & b & Zahlungsweise im Stromvertrag & Antwort ist ein Wort, keine Zahl & -- & -- & -- \\
+        T09 & b & Rücksendefrist bei LuminaStyle & Kleingedrucktes einer Rechnung & \checkmark & \checkmark & -- \\
+        T10 & b & Abschlussdatum des Heizstromvertrags & mehrere Daten im Vertrag (Abschluss, Beginn, Ende) & -- & -- & -- \\
+        T11 & b & Kündigung ConnectNet nach Mindestlaufzeit & zwei Teile (\enquote{jederzeit}, \enquote{ein Monat}) & \checkmark & -- & -- \\
+        T12 & c & Grundpreis Stromrechnung gleich Vertrag? & Vergleich Rechnung--Vertrag, Werte gleich & \checkmark & -- & -- \\
+        T13 & c & Differenz StreamPulse netto zu Vertrag brutto & zwei Dokumente und Rechnen (24,98 $-$ 20,99) & -- & -- & -- \\
+        T14 & c & Schmutzwassergebühr laut Vertrag berechnet? & Vergleich Rechnung--Vertrag (Kapitel~\ref{chap:reverse}) & \checkmark & \checkmark & -- \\
+        T15 & c & Abschlussdatum des Vertrags zur Wasserrechnung & Weg über die Vertragsnummer & -- & -- & -- \\
+        T16 & d & Verträge mit monatlichen Abschlägen & Wasser zahlt quartalsweise und muss fehlen & -- & \checkmark & -- \\
+        T17 & d & Erstlaufzeit endet 2027 & Filter über ein Datumsfeld & -- & \checkmark & \checkmark \\
+        T18 & d & 2025 abgeschlossene Verträge & Filter über das Abschlussdatum & -- & -- & -- \\
+        T19 & d & Rechnungen über 500\,€ & Liste über Rechnungen mit Schwelle & -- & -- & -- \\
+        T20 & d & jährlich bezahlte Verträge & Filter über den Zahlungsturnus & -- & \checkmark & -- \\
+        T21 & e & Rundfunkbeitrag laut Bescheid & Dokumentart fehlt ganz & \checkmark & \checkmark & \checkmark \\
+        T22 & e & Zeitungsabo pro Monat & es gibt ein Abo, aber ein anderes (Streaming) & \checkmark & \checkmark & \checkmark \\
+        T23 & e & Kündigungsfrist Servicevertrag Auto \& Service Müller & Anbieter hat nur eine Rechnung, keinen Vertrag & \checkmark & \checkmark & \checkmark \\
+        T24 & e & Jahresabrechnung Strom 2025 & es gibt 2024 und eine Verbrauchsübersicht 2025 & \checkmark & -- & \checkmark \\
+        \midrule
+        \multicolumn{4}{@{}l}{\textbf{richtig}} & 13/24 & 14/24 & 7/24 \\
+        \bottomrule
+    \end{tabularx}
+    \caption{Dritter versiegelter Testsatz: Begründung und Ergebnis je Frage}
+    \label{tab:testsatz}
+\end{table}
+
+\chapter{Messungen zur Auswahl von Suche und Modellen}
 \label{app:messungen}
 
 \input{content/generated/modell_tabelle.tex}
 
 \begin{table}[H]
     \centering\small
-    \begin{tabular}{lrrrr}
+    \begin{tabular}{lrrr}
         \toprule
-        Variante & Recall@5 & MRR & $\Delta$MRR [95\,\%] & Suche p50 \\
+        Variante & Recall@5 & MRR & Suche p50 \\
         \midrule
-        ohne Boost & 100\,\% & 0,93 & $-0{,}011$ [$-0{,}027$; $0{,}000$] & 57\,ms \\
-        Boost 1,5 (Referenz) & 100\,\% & 0,94 & -- & 57\,ms \\
-        + BM25 & 98\,\% & 0,95 & $+0{,}010$ [$-0{,}039$; $+0{,}059$] & 62\,ms \\
-        + Reranker & 99\,\% & 0,89 & $-0{,}045$ [$-0{,}095$; $+0{,}003$] & 1088\,ms \\
-        + Rewriting (Regeln) & 99\,\% & 0,95 & $+0{,}011$ [$-0{,}011$; $+0{,}035$] & 49\,ms \\
-        + Rewriting (LLM) & 68\,\% & 0,56 & $-0{,}372$ [$-0{,}475$; $-0{,}267$] & 2546\,ms \\
+        ohne Boost & 100\,\% & 0,93 & 57\,ms \\
+        Boost 1,5 (gewählt) & 100\,\% & 0,94 & 57\,ms \\
+        + BM25 & 98\,\% & 0,95 & 62\,ms \\
+        + Reranker & 99\,\% & 0,89 & 1088\,ms \\
+        + Umformulieren durch Regeln & 99\,\% & 0,95 & 49\,ms \\
+        + Umformulieren durch ein Modell & 68\,\% & 0,56 & 2546\,ms \\
         \bottomrule
     \end{tabular}
-    \caption{Retrieval-Ablation (93 Fragen, gepaarter Bootstrap gegen die Referenz)}
+    \caption{Zusätze zur Suche auf 93 Entwicklungsfragen. Recall@5: richtiges Dokument unter den ersten fünf; MRR: mittlerer Kehrwert des Rangs des ersten richtigen Treffers}
     \label{tab:ablation}
 \end{table}

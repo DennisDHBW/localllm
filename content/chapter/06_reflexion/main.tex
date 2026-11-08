@@ -3,14 +3,6 @@
 \chapter{Reflexion}
 \label{chap:reflexion}
 
-\paragraph{Trägt die Grundidee?} Teilweise. Datensouveränität ist auf einem Laptop ohne Grafikkarte erreichbar: Kein Dokument verlässt den Rechner, eine Antwort dauert im Median eine halbe Minute. Alles vor und nach dem Sprachmodell wurde messbar besser. Dazu gehören Parser, Kerndaten, Suche, Fristberechnung, Quellenliste und Bewertung. Die Korrektheit bestimmt aber das 8B-Modell, das Belege liest und formuliert. Sie blieb bei rund der Hälfte.
-\begin{enumerate}[nosep, leftmargin=*]
-    \item \textbf{Die Suche war nicht der Engpass.} Recall@5 lag schon ohne Zusätze bei 100\,\%. Die Fehler entstehen danach: Das Modell lehnt trotz Beleg ab oder liest die falsche Zeile.
-    \item \textbf{Was Code entscheidet, stimmt.} Fristfragen löst P2 alle, weil Python rechnet. Dass Rechnen ins Werkzeug gehört \cite{schick2023}, zeigt sich hier am deutlichsten.
-    \item \textbf{Abstimmen heißt Überanpassen.} 81\,\% auf dem Entwicklungssatz, 35\,\% auf ungesehenen Fragen. Ohne versiegelten Testsatz wäre mir das entgangen.
-    \item \textbf{Auch die Bewertung braucht Tests.} Ein fehlendes Muster für die eigene Ablehnungsformel ließ Version2 um 11 bis 14 Prozentpunkte schlechter aussehen. Eine fehlende Auswahlregel ließ ein Synthesemodell ungeprüft.
-    \item \textbf{Mehr Autonomie ist nicht automatisch besser.} Eine Weiche nach Fragetyp wie in Adaptive-RAG \cite{jeong2024} lag auf neuen Fragen 10 Prozentpunkte unter P1 allein.
-    \item \textbf{Lokal heißt Ressourcenplanung.} Zwei Läufe brachen ab, weil Ollama hier auf 9\,GB begrenzt ist.
-\end{enumerate}
+\paragraph{Trägt die Idee?} Der Datenschutz-Teil trägt: Kein Dokument verlässt den Laptop. Eine Antwort dauert aber ein bis zwei Minuten, und auf ungesehenen Fragen ist nur gut jede zweite richtig. Gelernt habe ich drei Dinge. \emph{Erstens} stimmt, was Code entscheidet: Fristen rechnet Python, fehlende Dokumentarten erkennt die Bestandsprüfung, sofern sie die Art kennt (S3). Fehler entstehen dort, wo das 8B-Modell Belege lesen muss. \emph{Zweitens} ist für P1 die Suche meist nicht der Engpass (Context Recall 0,80), sondern das Lesen; bei P2 ist es die eigene Werkzeugwahl. \emph{Drittens} ist mehr Autonomie nicht automatisch besser: P2 wählt seine Werkzeuge selbst und liegt trotzdem deutlich unter P1. Für ein kleines lokales Modell ist ein fester Ablauf mit Code-Prüfung besser.
 
-\paragraph{Ausblick.} Standard wäre P1; Tabellenwerte würde ich deterministisch aus \texttt{chunks.json} lesen und auf fremd geschriebenen Fragen prüfen.
+\paragraph{Grenzen und Ausblick.} Alle Testfragen stammen von mir. Der RAGAS-Richter ist dasselbe Modell, das in P1 antwortet. Als Nächstes würde ich Listenfragen, die am häufigsten scheitern, als Filter über die Kerndaten im Code beantworten.
