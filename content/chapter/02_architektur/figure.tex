@@ -12,16 +12,15 @@
   \node[store, left=of enrich] (cache) {Ebene 2: Cache\\SHA-256};
   \node[store, right=of json] (chroma) {Ebene 3: ChromaDB\\nomic-embed-text};
   \node[codebox, below=of chroma] (cat) {Katalog\\16 Dokumente,\\Kerndaten};
-  % P1
+  % Orchestrator
   \node[llmbox, below=9mm of cache, xshift=-4mm] (plan) {1 Plan\\(qwen2.5)};
   \node[codebox, right=of plan] (bestand) {2 Bestand};
   \node[codebox, right=of bestand] (tool) {3 Werkzeug\\Suche / Filter};
   \node[codebox, right=of tool] (bel) {4 Belege};
   \node[llmbox, right=of bel] (draft) {5 Entwurf\\(qwen2.5)};
   \node[codebox, right=of draft] (check) {6 Prüfung};
-  \node[left=1mm of plan, font=\scriptsize\bfseries] {P1};
-  \node[llmbox, below=4mm of tool, minimum width=6cm] (p2) {P2: ReAct (llama3.1) wählt aus 9 Werkzeugen};
-  \node[left=1mm of p2, font=\scriptsize\bfseries] {P2};
+  \node[llmbox, below=4mm of tool, minimum width=5cm] (p2) {ReAct-Agent (llama3.1) wählt selbst aus 9 Werkzeugen};
+  \node[below=1.5mm of plan, font=\scriptsize\bfseries] {Orchestrator};
   \draw[arr] (raw) -- (parse); \draw[arr] (parse) -- (json); \draw[arr] (json) -- (enrich);
   \draw[arr, <->] (enrich) -- (cache); \draw[arr] (json) -- (chroma); \draw[arr] (enrich) -- (cat);
   \draw[arr] (plan) -- (bestand); \draw[arr] (bestand) -- (tool); \draw[arr] (tool) -- (bel);
@@ -29,6 +28,6 @@
   \draw[arr, densely dotted] (chroma.south east) |- ++(0,-4mm) -| (tool.north);
   \draw[arr, densely dotted] (cat.south) |- (plan.north);
 \end{tikzpicture}
-\caption{Architektur: Einlesen in drei Speicherebenen, darunter die sechs Stufen von P1 (grün: Code, blau: Sprachmodell) und P2}
+\caption{Architektur: Einlesen in drei Speicherebenen, darunter die sechs Schritte des Orchestrators und der ReAct-Agent (grün: Code, blau: Sprachmodell)}
 \label{fig:architektur}
 \end{figure}
