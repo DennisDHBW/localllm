@@ -1,17 +1,17 @@
 % Aus LocalLLM/src/eval/results/modellauswahl/modellauswahl.md übertragen
 \begin{table}[H]
-    \centering\small
-    \begin{tabularx}{\textwidth}{Xrrrrrr}
+    \centering\footnotesize
+    \begin{tabularx}{\textwidth}{@{}Xrrrrrr@{}}
         \toprule
-        Modell & natives Tool-Call & richtiges Werkzeug & Latenz p50 & Tokens/s & RAM & Felder Extraktion \\
+        Modell & Tool-Call & Werkzeug & p50 & Tok./s & RAM & Felder \\
         \midrule
         qwen2.5:7b  & 12/14 & 9/14  & 7,1\,s & 5,8  & 5,5\,GB & 100\,\% \\
         llama3.1:8b & 14/14 & 12/14 & 8,2\,s & 5,1  & 6,3\,GB & 100\,\% \\
         llama3.2    & 13/14 & 10/14 & 3,3\,s & 10,5 & 3,1\,GB & 97\,\% \\
         \midrule
-        \multicolumn{7}{l}{Rewriting p95: llama3.2 3,2\,s, gemma3:4b 4,5\,s, qwen2.5:7b 6,3\,s (Ziel $<$ 500\,ms) \quad Vision gemma3:4b: 14/14 Diagrammwerte} \\
+        \multicolumn{7}{@{}p{\linewidth}@{}}{Rewriting p95: llama3.2 3,2\,s, gemma3:4b 4,5\,s, qwen2.5:7b 6,3\,s (Ziel $<$ 500\,ms). Vision gemma3:4b: 14/14 Diagrammwerte.} \\
         \bottomrule
     \end{tabularx}
-    \caption{Modellauswahl auf dem Testrechner (CPU, 16\,GB RAM)}
+    \caption{Modellauswahl auf dem Testrechner (CPU, 16\,GB RAM). Tool-Call: natives Tool-Calling, Werkzeug: richtiges Werkzeug gewählt, Felder: Kerndaten-Extraktion}
     \label{tab:modelle}
 \end{table}

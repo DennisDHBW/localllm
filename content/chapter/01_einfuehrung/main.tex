@@ -1,0 +1,35 @@
+%!TEX root = ../../../main.tex
+
+\chapter{Einführung}
+\label{chap:einfuehrung}
+
+\section{Grundgedanke und Motivation}
+\label{sec:motivation}
+
+Bei mir zu Hause sammeln sich Rechnungen und Verträge für Strom, Wasser, Handy, Auto, Streaming und Arztbesuche, teils als PDF, teils als Word-Datei. Kurze Fragen wie \enquote{Bis wann muss ich die Kfz-Versicherung kündigen?} kosten trotzdem Zeit, weil ich Dokument und Tabellenzeile erst suchen muss. Ein Chatbot in der Cloud könnte das, aber in den Dokumenten stehen IBAN, Adresse und Gesundheitsdaten. Mein Grundgedanke war deshalb ein Agent, der komplett auf meinem Laptop läuft (16\,GB RAM, keine Grafikkarte) und trotzdem verlässlich ist: Jede Aussage hat eine Quelle, und wenn es kein passendes Dokument gibt, sagt er das, statt etwas zu erfinden.
+
+Auf meiner Hardware laufen nur kleine Sprachmodelle mit 4 bis 8 Milliarden Parametern. Sie lesen erstaunlich gut, rechnen und urteilen aber unzuverlässig. Daraus ist das wichtigste Prinzip meiner Architektur entstanden: \emph{Das Modell liest, der Code entscheidet.} Rechnen, Fristen, Filter und die Prüfung, ob eine Zahl wirklich im Dokument steht, macht Python-Code.
+
+\section{Projektidee und Anwendungsfall}
+\label{sec:usecase}
+
+LocalLLM liest Dokumente aus einem Ordner ein und beantwortet Fragen in einer Streamlit-App. Ich habe zwei Prototypen auf denselben Daten gebaut: P1 mit einem festen Ablauf, den Code steuert, und P2 als frei planenden ReAct-Agenten. So kann ich messen, ob die Freiheit eines Agenten bei kleinen Modellen hilft oder schadet.
+
+Echte Rechnungen kann ich nicht abgeben. Ich habe deshalb 16 Dokumente mit realistischem Layout aus festen Sollwerten erzeugt, zehn Rechnungen (PDF) und sechs Verträge (drei DOCX, drei PDF). So kenne ich zu jeder Testfrage Antwort und Dokument. Absichtlich schwierig sind Hoch- und Niedertarif in Nachbarzeilen, Netto- und Bruttospalten nebeneinander, ein Diagramm, dessen Werte nur im Bild stehen, und unterschiedliche Vorauszahlungen in Wasserrechnung und -vertrag. Meine eigenen Fragen fallen in fünf Typen (Tabelle~\ref{tab:fragetypen}), an denen ich die Architektur ausgerichtet habe.
+
+\begin{table}[tb]
+    \centering\footnotesize\setstretch{1.05}
+    \begin{tabularx}{\textwidth}{@{}l Y Y@{}}
+        \toprule
+        \textbf{Typ} & \textbf{Beispiel} & \textbf{Was der Agent dafür braucht} \\
+        \midrule
+        a) Wert aus Tabelle & Umsatzsteuer der LuminaStyle-Rechnung? & die richtige Zeile mit Spaltenkopf \\
+        b) Textstelle & Mindestlaufzeit des Handyvertrags? & den richtigen Abschnitt im Vertrag \\
+        c) Zwei Dokumente & Wasser-Vorauszahlung wie im Vertrag? & Rechnung \emph{und} zugehörigen Vertrag \\
+        d) Liste & Welche Verträge verlängern sich um ein Jahr? & alle Verträge, Fristen berechnet \\
+        e) ohne Beleg & Kündigungsfrist meines Vodafone-Vertrags? & erkennen, dass nichts passt \\
+        \bottomrule
+    \end{tabularx}
+    \caption{Fragetypen und was sie vom Agenten verlangen}
+    \label{tab:fragetypen}
+\end{table}

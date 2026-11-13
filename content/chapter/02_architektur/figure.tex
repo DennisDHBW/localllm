@@ -1,0 +1,34 @@
+%!TEX root = ../../../main.tex
+\begin{figure}[!b]
+\centering
+\begin{tikzpicture}[font=\scriptsize, node distance=3mm and 3.5mm,
+    box/.style={draw, rounded corners=2pt, align=center, minimum height=8mm, inner sep=2pt},
+    store/.style={box, fill=gray!12}, llmbox/.style={box, fill=blue!8}, codebox/.style={box, fill=green!8},
+    arr/.style={-{Stealth[length=1.6mm]}}]
+  \node[box] (raw) {PDF / DOCX\\\texttt{data/raw}};
+  \node[box, right=of raw] (parse) {Parser\\Tabellenzeilen,\\Kapitelpfad, Bilder};
+  \node[store, right=of parse] (json) {Ebene 1: JSON\\je Dokument};
+  \node[llmbox, below=of json] (enrich) {Bildbeschreibung (gemma3)\\Kerndaten (qwen2.5)};
+  \node[store, left=of enrich] (cache) {Ebene 2: Cache\\SHA-256};
+  \node[store, right=of json] (chroma) {Ebene 3: ChromaDB\\nomic-embed-text};
+  \node[codebox, below=of chroma] (cat) {Katalog\\16 Dokumente,\\Kerndaten};
+  % P1
+  \node[llmbox, below=9mm of cache, xshift=-4mm] (plan) {1 Plan\\(qwen2.5)};
+  \node[codebox, right=of plan] (bestand) {2 Bestand};
+  \node[codebox, right=of bestand] (tool) {3 Werkzeug\\Suche / Filter};
+  \node[codebox, right=of tool] (bel) {4 Belege};
+  \node[llmbox, right=of bel] (draft) {5 Entwurf\\(qwen2.5)};
+  \node[codebox, right=of draft] (check) {6 Prüfung};
+  \node[left=1mm of plan, font=\scriptsize\bfseries] {P1};
+  \node[llmbox, below=4mm of tool, minimum width=6cm] (p2) {P2: ReAct (llama3.1) wählt aus 9 Werkzeugen};
+  \node[left=1mm of p2, font=\scriptsize\bfseries] {P2};
+  \draw[arr] (raw) -- (parse); \draw[arr] (parse) -- (json); \draw[arr] (json) -- (enrich);
+  \draw[arr, <->] (enrich) -- (cache); \draw[arr] (json) -- (chroma); \draw[arr] (enrich) -- (cat);
+  \draw[arr] (plan) -- (bestand); \draw[arr] (bestand) -- (tool); \draw[arr] (tool) -- (bel);
+  \draw[arr, dashed] (bel) -- node[above, font=\tiny]{Klick} (draft); \draw[arr] (draft) -- (check);
+  \draw[arr, densely dotted] (chroma.south east) |- ++(0,-4mm) -| (tool.north);
+  \draw[arr, densely dotted] (cat.south) |- (plan.north);
+\end{tikzpicture}
+\caption{Architektur: Einlesen in drei Speicherebenen, darunter die sechs Stufen von P1 (grün: Code, blau: Sprachmodell) und P2}
+\label{fig:architektur}
+\end{figure}

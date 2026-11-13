@@ -1,0 +1,51 @@
+%!TEX root = ../../../main.tex
+
+\chapter{Architektur und Kernkomponenten des Agentensystems}
+\label{chap:architektur}
+
+Abbildung~\ref{fig:architektur} zeigt den Aufbau: oben das Einlesen, das je Dokument einmal läuft, unten die beiden Prototypen. Alle Modelle laufen lokal in Ollama: qwen2.5:7b liest Kerndaten aus, plant und schreibt bei P1 den Entwurf, llama3.1:8b steuert P2, gemma3:4b beschreibt Bilder und Tabellen, nomic-embed-text erzeugt die Vektoren. Ausgewählt habe ich sie durch Messung (Anhang~\ref{app:messungen}). Gespeichert wird in drei Ebenen: lesbares JSON je Dokument, in dem ich bei komischen Antworten zuerst nachsehe, ein Cache für Modellausgaben (Schlüssel: SHA-256 des Inhalts) und die Vektordatenbank ChromaDB.
+
+\input{content/chapter/02_architektur/figure.tex}
+
+\section{Text-RAG für Fließtext}
+\label{sec:textrag}
+
+Der Parser liest PDF mit PyMuPDF und DOCX mit python-docx. Statt nach fester Zeichenzahl zu schneiden, folgt er der Struktur. Überschriften erkennt er an der Schriftgröße (ab 1,25-fach) oder an Fettdruck (ab 1,05-fach). Jeder Block bekommt den Pfad seiner Überschriften mit, etwa \enquote{Stromliefervertrag > §\,3 Preise}. Absätze unter 20 Zeichen hängt er an den vorigen an, damit ein Betrag nicht allein steht, über 1\,500 Zeichen teilt er sie an Satzgrenzen. Aus 16 Dokumenten entstehen 436 Blöcke: 246 Text, 80 Überschriften, 108 Tabellenzeilen, 2 Bilder.
+
+Vor dem Einbetten stelle ich jedem Block seinen Pfad voran, etwa \texttt{[Vertraege | Vertrag\_Wasser | §\,5 Vorauszahlung]}. Ohne ihn ist \enquote{210,00\,€ quartalsweise} irgendein Betrag, mit ihm gehört er zum Wasservertrag. ChromaDB liefert 20 Kandidaten nach Kosinus-Ähnlichkeit. Enthält der Pfad ein Wort der Frage, zählt der Score 1,5-fach, die besten fünf gehen weiter. Jeden Baustein kann ich einzeln abschalten und messen. Drei flogen so wieder raus (Tabelle~\ref{tab:ablation}): BM25 brachte nichts, weil der Pfad die Fachwörter schon enthält, ein Reranker verschlechterte die Reihenfolge, und Umformulieren der Frage durch ein Modell senkte den Anteil mit richtigem Dokument unter den ersten fünf von 100 auf 68\,\%. \emph{Schwäche:} Fußzeilen erkennt der Parser nicht immer. In der Stromrechnung landen Handelsregister und IBAN als \enquote{Tabellenzeile} im Index.
+
+\section{Tabellen- und Bild-RAG}
+\label{sec:tabbild}
+
+Die meisten Werte stehen in Tabellen. Der Parser schneidet sie deshalb zuerst aus dem Fließtext und speichert jede Zeile als Block, in dem jeder Wert seinen Spaltenkopf behält:
+\begin{center}\small
+\texttt{Position: Arbeitspreis Strom | Menge: 3.400 kWh | Einzelpreis: 34,500 ct/kWh | Gesamt netto (€): 1.173,00}
+\end{center}
+So weiß das Modell, ob eine Zahl netto oder brutto ist. gemma3:4b fasst zusätzlich jede Tabelle in einem Satz zusammen, damit auch allgemeine Fragen sie finden. Bilder unter 100 Pixeln (Logos, Linien) überspringe ich, die übrigen beschreibt gemma3:4b als Vision-Modell. Der Prompt verlangt bei Diagrammen Achsen und \emph{alle} ablesbaren Werte. Aus dem Verbrauchsdiagramm wird so \enquote{Jan: 380\,kWh, \dots, Jul: 150\,kWh}, und erst dadurch ist die Frage nach dem Monat mit dem niedrigsten Verbrauch beantwortbar. \emph{Schwäche:} Es gibt nur zwei Bilder. Ob gemma unübersichtliche Diagramme richtig abliest, habe ich nicht systematisch getestet.
+
+\section{Strukturierte Kerndaten statt SQL-Datenbank}
+\label{sec:kerndaten}
+
+Bei \enquote{Welche Verträge kann ich bis Jahresende kündigen?} muss ich \emph{alle} Verträge prüfen, da hilft Ähnlichkeitssuche nicht. Deshalb liest qwen2.5:7b beim Einlesen feste \emph{Kerndaten} aus, bei Rechnungen 11 Felder (Anbieter, Datum, Gesamtbetrag, Fälligkeit \dots), bei Verträgen 17 (Beginn, Laufzeitende, Kündigungsfrist, Abschlag \dots). Ollama erzwingt dabei ein JSON-Schema. Blind traue ich den Werten nicht: Steht ein Wert nicht wörtlich im Dokument, löscht Code ihn. In meiner ersten Version waren 49\,\% der Felder richtig, mit dieser Prüfung und getrennten Feldlisten sind es 96\,\%.
+
+Aus den Kerndaten baut Code einen \emph{Katalog} mit einer Zeile je Dokument, etwa \enquote{[12] Vertrag · Volt \& Wärme AG · Heizstromvertrag WP-Natur}. Darauf laufen Filter wie \texttt{kuendigen\_bis <= 31.12.2026}. Das ist im Grunde ein SQL-\texttt{WHERE} in Python, eine echte Datenbank brauche ich bei 16 Dokumenten nicht. Kündigungstermine rechnet ein eigener Fristrechner aus Laufzeitende, Frist und Verlängerung, nie das Sprachmodell.
+
+\paragraph{Warum kein GraphRAG?} Entitäten gäbe es genug: Personen, Anbieter, Verträge, Rechnungen, Zähler, Fahrzeuge. Relevante Beziehungen wären \enquote{Rechnung gehört zu Vertrag} oder \enquote{Vertrag läuft auf Person}. Ein Graph hilft bei Fragen über mehrere Dokumente (\enquote{Welche Rechnungen gehören zum Stromvertrag?}). Bei 16 Dokumenten ist aber jede dieser Kanten ein Vergleich zweier Kerndatenfelder (gleiche Vertragsnummer, gleicher Kunde), und das erledigen Katalog und Filter. Dazu kommen die Kosten: Ein Modell müsste alle 436 Blöcke auf Entitäten lesen, bei geschätzt 30\,s je Aufruf über drei Stunden, statt 16 Aufrufen für die Kerndaten. Meine erste Version hatte fünf Graph-Werkzeuge. Keine Testfrage brauchte sie, also habe ich sie entfernt.
+
+\section{Der zentrale Orchestrator (P1) und der ReAct-Agent (P2)}
+\label{sec:orchestrator}
+
+P1 arbeitet in sechs festen Stufen, das Modell kommt nur zweimal vor:
+\begin{enumerate}[nosep, leftmargin=*]
+    \item \emph{Plan:} qwen2.5:7b füllt mit Frage und Katalog ein kleines JSON: Fragetyp (\texttt{wert}, \texttt{vergleich}, \texttt{frist}, \texttt{liste}, \texttt{fehlt}), Dokumentnummern, bei Listen einen Filter. Code prüft den Plan, etwa dass ein Vergleich Rechnung \emph{und} Vertrag enthält.
+    \item \emph{Bestand:} Code prüft, ob es die Dokumentart gibt. Bei \enquote{private Haftpflichtversicherung} reicht nicht, dass \enquote{Haftpflicht} im Kfz-Schein steht, auch \enquote{privat} muss passen. Sonst kommt sofort \enquote{nicht belegt}.
+    \item \emph{Werkzeug:} Werte sucht P1 nur in den geplanten Dokumenten, Listen filtert Python, Fristen rechnet der Fristrechner.
+    \item \emph{Belege:} Die App zeigt die Treffer zuerst, nummeriert, nach Ordner, Datei und Kapitel geordnet und eingefärbt (grün ab 0,7, rot unter 0,4). Erst auf Klick schreibt das Modell.
+    \item \emph{Entwurf:} qwen2.5:7b liefert JSON: jeden Wert mit Belegnummer, optional eine Rechnung wie \enquote{w2 $-$ w1} und einen Antwortsatz mit Platzhalter für das Ergebnis.
+    \item \emph{Prüfung:} Code sucht jeden Wert in seinem Beleg, prüft netto/brutto und rechnet selbst. Bei Fehlern gibt es genau einen Korrekturversuch mit konkretem Hinweis (\enquote{14,00 steht nicht in Beleg~1}), danach fliegt Unbelegtes raus.
+\end{enumerate}
+P2 ist das Gegenmodell: llama3.1:8b überlegt nach dem ReAct-Muster, ruft eines von neun Werkzeugen auf (Suchen, Kerndaten, Listen, Filter, Rechner), liest das Ergebnis und entscheidet selbst weiter. Nach sechs Schritten oder 300\,s muss es antworten. Zahlprüfung und Quellen sind dieselben wie bei P1.
+
+\paragraph{Eine Frage im Detail.} Testfrage T14 fragt, um wie viel die neue Wasser-Vorauszahlung ab Februar 2025 höher ist als im Vertrag. Der Plan wählt in 17\,s Rechnung und Vertrag, schnell, weil der Katalog im Prompt-Cache liegt und nur 23 neue Tokens gelesen werden. Die Suche liefert in 0,2\,s zwölf Belege, darunter 210,00\,€ (Vertrag) und \enquote{Ab dem 15.02.2025 \dots{} 225,00\,€} (Rechnung). Der Entwurf braucht 113\,s, davon 79\,s nur zum Einlesen von etwa 1\,500 Tokens Belegen, und antwortet richtig mit 15,00\,€. Im Protokoll habe ich aber gesehen, dass das Modell selbst gerechnet hat, statt den Platzhalter zu nutzen. Die Zahlprüfung ließ \enquote{15} nur durch, weil die Zahl zufällig als Tag im Datum 15.02.2025 steht.
+
+\paragraph{Antwortzeit.} Mein Prozessor liest nur etwa 18 Tokens/s ein. Antworten mit Entwurf dauern deshalb rund 100\,s statt der angepeilten 60\,s, Listen und Ablehnungen 10 bis 20\,s. Dass in einer Messung sogar der Plan 100\,s brauchte, lag an meinem Messaufbau: Das Modell von P2 verdrängte das von P1 aus dem Speicher.
