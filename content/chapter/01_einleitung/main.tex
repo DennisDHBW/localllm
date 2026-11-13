@@ -1,0 +1,10 @@
+%!TEX root = ../../../main.tex
+
+\chapter{Einleitung}
+\label{chap:einleitung}
+
+Zu Hause sammeln sich Rechnungen und Verträge für Strom, Wasser, Handy, Versicherung und Streaming. Will ich etwas wissen, muss ich die richtige Stelle in der richtigen Datei finden, oft sogar in zwei Dateien (\enquote{Stimmt der Abschlag mit dem Vertrag überein?}). Ein Chatbot in der Cloud könnte das, aber die Dokumente enthalten IBAN, Adressen und Gesundheitsdaten.
+
+Ich baue deshalb einen Agenten, der solche Fragen vollständig auf meinem Laptop beantwortet (16\,GB RAM, keine Grafikkarte). Jede Aussage soll eine nummerierte Quelle haben, und wenn nichts belegt ist, soll er das sagen, statt zu raten. Gefordert sind ein lokales System, eine modulare RAG-Pipeline, mindestens ein agentischer Teil und systematische Tests statt Ausprobieren.
+
+Kapitel~\ref{chap:grundlagen} stellt die Grundlagen vor, Kapitel~\ref{chap:usecase} den Use Case und die Daten. Kapitel~\ref{chap:architektur} beschreibt die Architektur mit zwei Prototypen und begründet, warum ich keinen Wissensgraphen nutze. Kapitel~\ref{chap:evaluation} zeigt Teststrategie, Kennzahlen und Ergebnisse, Kapitel~\ref{chap:diskussion} Probleme und Grenzen.
