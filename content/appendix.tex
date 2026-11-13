@@ -25,44 +25,44 @@
 \end{table}
 
 
-Alle 24 Fragen des fünften versiegelten Testsatzes (\texttt{src/eval/sets/heldout5.json}), geschrieben und per SHA-256 versiegelt, bevor der letzte Feinschliff begann. Die Sollwerte stammen aus dem Rohtext der Dokumente. P1 lief zweimal (Anzahl richtiger Läufe), P2 einmal (\checkmark{} = richtig).
+Alle 24 Fragen des letzten versiegelten Testsatzes, geschrieben und per SHA-256 versiegelt, bevor die letzten Änderungen begannen. Die Sollwerte stammen aus dem Rohtext der Dokumente. Der Orchestrator lief zweimal (Anzahl richtiger Läufe), der ReAct-Agent einmal (\checkmark{} = richtig).
 
 \begin{table}[H]
     \centering\scriptsize
     \setlength{\tabcolsep}{3pt}
-    \begin{tabularx}{\textwidth}{@{}l l p{5.2cm} Y c c c@{}}
+    \begin{tabularx}{\textwidth}{@{}l l p{5.2cm} Y c c@{}}
         \toprule
-        \textbf{Nr.} & \textbf{Typ} & \textbf{Frage (gekürzt)} & \textbf{Warum diese Frage} & \textbf{P1 V4} & \textbf{P1 V5} & \textbf{P2} \\
+        \textbf{Nr.} & \textbf{Typ} & \textbf{Frage (gekürzt)} & \textbf{Warum diese Frage} & \textbf{Orch.} & \textbf{ReAct} \\
         \midrule
-        T01 & a & USt der Stromrechnung 2024 & Netto und Brutto stehen direkt daneben & 2/2 & 2/2 & -- \\
-        T02 & a & Nettobeitrag NordStern & Gesamtbeitrag inkl.\ Steuer als Störwert & 0/2 & 0/2 & -- \\
-        T03 & a & Inspektion netto, Werkstatt & Stundensatz und Stunden in derselben Zeile & 2/2 & 2/2 & -- \\
-        T04 & a & Trinkwassergebühr brutto & netto steht in derselben Zeile & 2/2 & 2/2 & -- \\
-        T05 & a & Untersuchung auf der Arztrechnung & Einfachsatz und Faktor stehen davor & 2/2 & 2/2 & -- \\
-        T06 & a & Stehleuchte netto, LuminaStyle & mehrere Artikel in der Tabelle & 2/2 & 2/2 & \checkmark \\
-        T07 & b & Erstlaufzeit Stromvertrag & Kündigungsfrist als Störwert & 0/2 & 2/2 & -- \\
-        T08 & b & Preisgarantie ConnectNet & gleiches Datum wie Ende der Mindestlaufzeit & 2/2 & 2/2 & \checkmark \\
-        T09 & b & seit wann läuft StreamPulse & Alltagssprache für Vertragsbeginn & 2/2 & 2/2 & -- \\
-        T10 & b & Vertragsnummer Wasser & Zählernummer als Störwert & 2/2 & 2/2 & \checkmark \\
-        T11 & b & Kfz-Versicherung zum Jahresende kündigen & Frist in Alltagssprache & 2/2 & 2/2 & -- \\
-        T12 & c & Tagstrom zum Vertragspreis abgerechnet? & Nachtstrompreis als Störwert & 2/2 & 2/2 & -- \\
-        T13 & c & Tarif Mobile L wie im Vertrag? & drei Tarife in beiden Tabellen & 1/2 & 1/2 & -- \\
-        T14 & c & Differenz Wasser-Vorauszahlung & Werte aus zwei Dokumenten, rechnen & 2/2 & 2/2 & -- \\
-        T15 & c & Grundgebühr Wasserzähler wie im Vertrag? & Jahressumme und Brutto als Störwerte & 2/2 & 2/2 & -- \\
-        T16 & d & Verträge per Kreditkarte & Filter mit nur einem Treffer & 0/2 & 0/2 & \checkmark \\
-        T17 & d & Rechnungen aus 2025 & Rechnungs- statt Abrechnungsjahr & 2/2 & 2/2 & -- \\
-        T18 & d & Rechnungen zwischen 100 und 1.000\,€ & Bereich mit zwei Grenzen & 0/2 & 0/2 & -- \\
-        T19 & d & SEPA-Verträge von Max Mustermann & zwei Bedingungen & 0/2 & 0/2 & -- \\
-        T20 & d & bis 31.12.2026 kündbar & Termin in Alltagssprache & 0/2 & 0/2 & -- \\
-        T21 & e & Wohngebäudeversicherung & Adresse vorhanden, Versicherung nicht & 2/2 & 2/2 & \checkmark \\
-        T22 & e & Versicherung des VW Golf & Auto nur in der Werkstattrechnung & 2/2 & 2/2 & \checkmark \\
-        T23 & e & DSL bei 1\&1 & Thema vorhanden, Anbieter nicht & 2/2 & 2/2 & \checkmark \\
-        T24 & e & Heizstromabrechnung 2025 & Anbieter vorhanden, Jahr nicht & 2/2 & 2/2 & \checkmark \\
+        T01 & a & USt der Stromrechnung 2024 & Netto und Brutto stehen direkt daneben & 2/2 & -- \\
+        T02 & a & Nettobeitrag NordStern & Gesamtbeitrag inkl.\ Steuer als Störwert & 0/2 & -- \\
+        T03 & a & Inspektion netto, Werkstatt & Stundensatz und Stunden in derselben Zeile & 2/2 & -- \\
+        T04 & a & Trinkwassergebühr brutto & netto steht in derselben Zeile & 2/2 & -- \\
+        T05 & a & Untersuchung auf der Arztrechnung & Einfachsatz und Faktor stehen davor & 2/2 & -- \\
+        T06 & a & Stehleuchte netto, LuminaStyle & mehrere Artikel in der Tabelle & 2/2 & \checkmark \\
+        T07 & b & Erstlaufzeit Stromvertrag & Kündigungsfrist als Störwert & 2/2 & -- \\
+        T08 & b & Preisgarantie ConnectNet & gleiches Datum wie Ende der Mindestlaufzeit & 2/2 & \checkmark \\
+        T09 & b & seit wann läuft StreamPulse & Alltagssprache für Vertragsbeginn & 2/2 & -- \\
+        T10 & b & Vertragsnummer Wasser & Zählernummer als Störwert & 2/2 & \checkmark \\
+        T11 & b & Kfz-Versicherung zum Jahresende kündigen & Frist in Alltagssprache & 2/2 & -- \\
+        T12 & c & Tagstrom zum Vertragspreis abgerechnet? & Nachtstrompreis als Störwert & 2/2 & -- \\
+        T13 & c & Tarif Mobile L wie im Vertrag? & drei Tarife in beiden Tabellen & 1/2 & -- \\
+        T14 & c & Differenz Wasser-Vorauszahlung & Werte aus zwei Dokumenten, rechnen & 2/2 & -- \\
+        T15 & c & Grundgebühr Wasserzähler wie im Vertrag? & Jahressumme und Brutto als Störwerte & 2/2 & -- \\
+        T16 & d & Verträge per Kreditkarte & Filter mit nur einem Treffer & 0/2 & \checkmark \\
+        T17 & d & Rechnungen aus 2025 & Rechnungs- statt Abrechnungsjahr & 2/2 & -- \\
+        T18 & d & Rechnungen zwischen 100 und 1.000\,€ & Bereich mit zwei Grenzen & 0/2 & -- \\
+        T19 & d & SEPA-Verträge von Max Mustermann & zwei Bedingungen & 0/2 & -- \\
+        T20 & d & bis 31.12.2026 kündbar & Termin in Alltagssprache & 0/2 & -- \\
+        T21 & e & Wohngebäudeversicherung & Adresse vorhanden, Versicherung nicht & 2/2 & \checkmark \\
+        T22 & e & Versicherung des VW Golf & Auto nur in der Werkstattrechnung & 2/2 & \checkmark \\
+        T23 & e & DSL bei 1\&1 & Thema vorhanden, Anbieter nicht & 2/2 & \checkmark \\
+        T24 & e & Heizstromabrechnung 2025 & Anbieter vorhanden, Jahr nicht & 2/2 & \checkmark \\
         \midrule
-        \multicolumn{4}{@{}l}{\textbf{richtig}} & 35/48 & 37/48 & 8/24 \\
+        \multicolumn{4}{@{}l}{\textbf{richtig}} & 37/48 & 8/24 \\
         \bottomrule
     \end{tabularx}
-    \caption{Fünfter versiegelter Testsatz: Begründung und Ergebnis je Frage}
+    \caption{Letzter versiegelter Testsatz: Begründung und Ergebnis je Frage}
     \label{tab:testsatz}
 \end{table}
 

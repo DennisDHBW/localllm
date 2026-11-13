@@ -3,71 +3,50 @@
 \chapter{Teststrategie und Evaluation}
 \label{chap:evaluation}
 
-Im Chat wirkt ein Agent schnell gut, weil er flüssig klingt. Ich teste deshalb nur mit festen Fragen: Jede hat einen Typ, einen Sollwert aus dem Dokument, ein Solldokument und eine Begründung. Alle Läufe sind reproduzierbar (Temperatur 0, fester Seed, festes \enquote{heutiges} Datum für Fristen). Der \emph{Kernsatz} enthält die geforderten fünf Standardfragen, zwei Grenzfälle und zwei Negativfragen (Tabelle~\ref{tab:kern}). Am \emph{Entwicklungssatz} (54 Fragen) suche ich Fehler. \emph{Versiegelte Sätze} mit 20 bis 24 neuen Fragen schreibe ich vor jedem größeren Umbau, sichere sie per SHA-256 und messe sie nur einmal. Nötig wurde das, als P1 auf dem Entwicklungssatz 81\,\%, auf dem ersten versiegelten Satz aber nur 35\,\% erreichte: Ich hatte meine Regeln auf meine eigenen Fragen zugeschnitten. Seitdem lege ich vor jeder Messung fest, ab wann eine Änderung als besser gilt. Die Ergebnisse unten stammen aus dem fünften versiegelten Satz mit 24 Fragen (Tabelle~\ref{tab:testsatz}), P1 vor (V4) und nach (V5) dem letzten Feinschliff je zweimal, P2 einmal.
-
-\section{Automatisierte RAGAS-Evaluation (probabilistische Metriken)}
-\label{sec:ragas}
-
-Eine RAG-Antwort scheitert entweder an der Suche oder am Lesen. RAGAS bewertet beides getrennt, mit einem Sprachmodell als Richter. Damit auch die Bewertung offline bleibt, ist das bei mir qwen2.5:7b.
-
-\paragraph{Faithfulness.} Der Richter zerlegt die Antwort in einzelne Aussagen (\enquote{Der Grundpreis beträgt 12,50\,€ und entspricht dem Vertrag} sind zwei) und prüft für jede, ob sie aus den benutzten Belegen folgt:
-\[
-\text{Faithfulness} = \frac{\text{Aussagen, die aus den Belegen folgen}}{\text{alle Aussagen der Antwort}}
-\]
-1,0 heißt \enquote{nichts erfunden}. Das ist für mich die wichtigste Zahl, weil eine überzeugende, aber falsche Aussage über Geld schlimmer ist als keine Antwort. Anders als meine Zahlprüfung sieht sie auch Aussagen ohne Zahl. Ablehnungen zählen nicht.
-
-\paragraph{Context Recall.} Hier zerlegt der Richter die Sollantwort, die ich aus der Belegstelle bilde (\enquote{Laut Dokument: 2,80\,€/m³}), und prüft, welcher Anteil davon in den gefundenen Belegen steht:
-\[
-\text{Context Recall} = \frac{\text{Sätze der Sollantwort, die in den Belegen stehen}}{\text{alle Sätze der Sollantwort}}
-\]
-Ist eine Antwort falsch, obwohl der Recall 1 ist, lag der Beleg vor und das Modell hat falsch gelesen. Ihn gibt es nur für die Typen a bis c, weil Listen und Negativfragen keine einzelne Belegstelle haben.
+Wenn man mit einem Agenten chattet, wirkt er schnell gut, weil die Antworten flüssig klingen. Ob die Zahl darin stimmt, sieht man nicht. Ich teste deshalb nur mit festen Fragen, jede mit Typ, Sollwert, Solldokument und Begründung. Die Läufe sind wiederholbar (Temperatur 0, fester Seed, festes \enquote{heutiges} Datum für Fristen). Es gibt drei Arten von Testsätzen. Der \emph{Kernsatz} enthält die geforderten fünf Standardfragen, zwei Grenzfälle und zwei Negativfragen (Tabelle~\ref{tab:kern}). Am \emph{Entwicklungssatz} (54 Fragen) suche ich Fehler. \emph{Versiegelte Sätze} mit 20 bis 24 neuen Fragen schreibe ich vor einem größeren Umbau, sichere sie per SHA-256 und messe sie nur einmal. Nötig wurde das nach einer unangenehmen Messung. Auf dem Entwicklungssatz kam der Orchestrator auf 81\,\%, auf dem ersten versiegelten Satz nur auf 35\,\%, weil ich meine Regeln unbewusst auf meine eigenen Fragen zugeschnitten hatte. Die Ergebnisse unten stammen vom letzten versiegelten Satz mit 24 Fragen (Tabelle~\ref{tab:testsatz}), der Orchestrator lief zweimal, der ReAct-Agent wegen der Laufzeit einmal.
 
 \begin{table}[tb]
     \centering\small
-    \begin{tabular}{@{}l r r r@{}}
+    \begin{tabular}{@{}l r r@{}}
         \toprule
-        & \textbf{P1 V4} & \textbf{P1 V5} & \textbf{P2} \\
+        & \textbf{Orchestrator} & \textbf{ReAct-Agent} \\
         \midrule
-        Faithfulness (20 / 20 / 13 Antworten) & 0,80 [0,64--0,93] & 0,68 [0,51--0,84] & 0,60 [0,35--0,83] \\
-        Context Recall (15 Fragen, a--c) & 0,93 [0,80--1,00] & 0,93 [0,80--1,00] & 0,20 [0,00--0,40] \\
+        Korrektheit gesamt & 77\,\% (37/48) & 33\,\% (8/24) \\
+        \quad 95-\%-Intervall (Wilson) & 63--87\,\% & 18--53\,\% \\
+        \quad a / b / c (Wert, Text, Vergleich) & 27/30 & 3/15 \\
+        \quad d (Listen) & 2/10 & 1/5 \\
+        \quad e (ohne Beleg, richtig abgelehnt) & 8/8 & 4/4 \\
+        Antworten mit richtiger Quelle & 36/40 & 7/13 \\
+        Antwortzeit Median / 95.~Perzentil & 98 / 199\,s & 92 / 318\,s \\
+        \midrule
+        RAGAS Faithfulness (20 / 13 Antworten) & 0,68 [0,51--0,84] & 0,60 [0,35--0,83] \\
+        RAGAS Context Recall (15 Fragen, a--c) & 0,93 [0,80--1,00] & 0,20 [0,00--0,40] \\
         \bottomrule
     \end{tabular}
-    \caption{RAGAS auf dem fünften versiegelten Satz (erste Wiederholung, Richter qwen2.5:7b, 95-\%-Bootstrap-Intervall)}
-    \label{tab:ragas}
+    \caption{Ergebnisse auf dem letzten versiegelten Satz (24 Fragen, Orchestrator zwei Läufe; RAGAS mit 95-\%-Bootstrap-Intervall)}
+    \label{tab:ergebnisse}
 \end{table}
 
-\paragraph{Ergebnisse.} Der Context Recall von P1 ist mit 0,93 hoch (Tabelle~\ref{tab:ragas}). Die Suche findet also fast immer die richtige Stelle, der Engpass ist das Lesen. Bei P2 liegt er bei 0,20: Der freie Agent wählt seine Suchen selbst und landet oft nicht bei der Belegstelle.
+\section{Automatisierte RAGAS-Evaluation}
+\label{sec:ragas}
 
-Dass V5 bei Faithfulness schlechter aussieht, obwohl ich den Entwurf nicht geändert hatte, habe ich an den drei betroffenen Fragen nachgelesen. Bei T04 ist die Antwort inhaltlich gleich: \enquote{\dots{} brutto mit 294,25\,€ berechnet [1]} bekam 1,0, \enquote{\dots{} mit 294,25\,€ berechnet, wie in Beleg [1] ersichtlich} bekam 0,0. Das liegt am Richter. Bei T13 ist der Abzug dagegen berechtigt, denn V5 schreibt nur \enquote{entspricht dem Preis im Vertrag}, ohne die 33,60\,€ zu nennen. Bei T01 bekam sogar die richtige, wörtlich belegte Antwort \enquote{251,37\,€} beide Male 0.
+Eine RAG-Antwort scheitert entweder an der Suche oder am Lesen. RAGAS bewertet beides getrennt. Die Metriken sind probabilistisch, denn ein Sprachmodell urteilt, bei mir Qwen2.5 (7B).
 
-\paragraph{RAGAS gegen meine Zahlprüfung.} Weil der Richter selbst ein kleines Modell ist, vergleiche ich ihn mit einer deterministischen Prüfung, die jede Zahl der Antwort meldet, die in keinem Beleg steht. Bei den 20 Antworten von P1 V5 schlugen beide zweimal gemeinsam an, beide Male bei Listen. Achtmal schlug nur RAGAS an, davon waren vier Antworten laut Sollwert richtig. Zweimal schlug nur die Zahlprüfung an: bei T07, weil das Modell \enquote{1. Januar 2024} ausschrieb und die Prüfung nur 01.01.2024 kannte, und bei T14, wo das Modell selbst gerechnet hat. Ein 7B-Richter ist also ein nützliches Signal, allein aber zu unzuverlässig.
+\paragraph{Faithfulness.} Der Richter zerlegt die Antwort in einzelne Aussagen (\enquote{Der Grundpreis beträgt 12,50\,€ und entspricht dem Vertrag} sind zwei) und prüft für jede, ob sie aus den benutzten Belegen folgt. Faithfulness ist der Anteil dieser belegten Aussagen an allen Aussagen, 1,0 heißt, dass nichts erfunden ist. Für mich ist das die wichtigste Zahl, weil eine überzeugende, aber falsche Aussage über Geld schlimmer ist als keine Antwort.
+
+\paragraph{Context Recall.} Hier zerlegt der Richter die Sollantwort, die ich aus der Belegstelle bilde (\enquote{Laut Dokument: 2,80\,€/m³}), und misst, welcher Anteil ihrer Sätze in den gefundenen Belegen steht. Ist eine Antwort falsch, obwohl der Recall 1 ist, hat das Modell falsch gelesen. Den Recall gibt es nur für die Typen a bis c, Listen und Negativfragen haben keine einzelne Belegstelle.
+
+\paragraph{Ergebnisse.} Der Context Recall des Orchestrators liegt bei 0,93 (Tabelle~\ref{tab:ergebnisse}). Die Suche findet also fast immer die richtige Stelle. Beim ReAct-Agenten sind es nur 0,20, er wählt seine Suchen selbst und kommt oft gar nicht dort an. Die Faithfulness von 0,68 kam mir zuerst sehr niedrig vor, beim Nachlesen der Bewertungen hat sich das Bild aber verschoben. Ein Teil der Abzüge ist berechtigt. Bei T13 schreibt der Orchestrator zum Beispiel nur \enquote{entspricht dem Preis im Vertrag}, ohne den Preis von 33,60\,€ zu nennen. Ein anderer Teil liegt am Richter. Die richtige und wörtlich belegte Antwort \enquote{251,37\,€} auf T01 bekam bei beiden Metriken 0. Bei T04 hatte ich aus zwei Läufen fast gleiche Antworten. \enquote{\dots{} brutto mit 294,25\,€ berechnet [1]} bekam 1,0, \enquote{\dots{} mit 294,25\,€ berechnet, wie in Beleg [1] ersichtlich} bekam 0,0.
+
+\paragraph{RAGAS gegen meine Zahlprüfung.} Ich habe den Richter mit einer deterministischen Prüfung verglichen, die jede Zahl meldet, die in keinem Beleg vorkommt. Bei den 20 Antworten schlugen beide zweimal gemeinsam an, beide Male bei Listen. Achtmal schlug nur RAGAS an, und vier dieser acht Antworten waren laut Sollwert richtig. Zweimal schlug nur die Zahlprüfung an. Bei T07 hatte das Modell \enquote{1. Januar 2024} ausgeschrieben, die Prüfung kannte aber nur 01.01.2024, und bei T14 hatte das Modell selbst gerechnet. Ein 7B-Richter zeigt also, wo man hinschauen sollte, als alleinige Note taugt er nicht.
 
 \section{Validierung mittels Golden Dataset}
 \label{sec:golden}
 
-Beim Golden Dataset urteilt kein Modell, sondern Code. Eine Antwort ist richtig, wenn jeder Sollwert in einem Satz steht, der ihn nicht verneint. Bei Listen müssen alle erwarteten Einträge vorkommen und kein ausgeschlossener, bei Negativfragen zählt nur eine Ablehnung. Wegen der kleinen Sätze gebe ich ein 95-\%-Intervall nach Wilson an und prüfe Unterschiede zwischen Versionen mit einem gepaarten Bootstrap. \emph{Grenze:} Eine erfundene Begründung bemerkt die Regel nicht, dafür gibt es Faithfulness.
+Beim Golden Dataset bewertet kein Modell, sondern Code. Eine Antwort ist richtig, wenn jeder Sollwert in einem Satz steht, der ihn nicht verneint. Bei Listen müssen alle erwarteten Einträge dabei sein, bei Negativfragen zählt nur eine Ablehnung. Weil 24 Fragen wenig sind, gebe ich ein 95-\%-Intervall nach Wilson an. Eine erfundene Begründung neben der richtigen Zahl bemerkt die Regel nicht, dafür gibt es Faithfulness.
 
-\paragraph{Tool- und Modultests.} Darunter liegen 130 automatische Tests für jeden Baustein, vom Parser (Tabellenzeilen mit Spaltenkopf) über Boost und Fristrechner bis zur Zahlprüfung. Den Planer teste ich ohne Modellaufruf: Gespeicherte Pläne von 106 alten Fragen laufen nach jeder Änderung erneut durch die Code-Prüfung, und keine darf fälschlich abgelehnt werden. Das hat zum Beispiel meine erste Regel gegen die Haftpflicht-Falle gestoppt, die nebenbei \enquote{Wie viel Umsatzsteuer \dots?} abgelehnt hätte.
+\paragraph{Tool- und Modultests.} Darunter liegen 130 automatische Tests vom Parser bis zur Zahlprüfung. Für den Planer laufen nach jeder Änderung gespeicherte Pläne von 106 alten Fragen ohne Modellaufruf durch die Code-Prüfung, und keine darf fälschlich abgelehnt werden. Das hat zum Beispiel meine erste Regel gegen die Haftpflicht-Falle gestoppt, die nebenbei auch \enquote{Wie viel Umsatzsteuer \dots?} abgelehnt hätte.
 
-\begin{table}[tb]
-    \centering\small
-    \begin{tabular}{@{}l r r r@{}}
-        \toprule
-        & \textbf{P1 V4} & \textbf{P1 V5} & \textbf{P2} \\
-        \midrule
-        Korrektheit gesamt & 73\,\% (35/48) & 77\,\% (37/48) & 33\,\% (8/24) \\
-        \quad 95-\%-Intervall (Wilson) & 59--83\,\% & 63--87\,\% & 18--53\,\% \\
-        \quad a / b / c (Wert, Text, Vergleich) & 25/30 & 27/30 & 3/15 \\
-        \quad d (Listen) & 2/10 & 2/10 & 1/5 \\
-        \quad e (ohne Beleg, richtig abgelehnt) & 8/8 & 8/8 & 4/4 \\
-        Antworten mit richtiger Quelle & 36/40 & 36/40 & 7/13 \\
-        Antwortzeit Median / 95.~Perzentil & 113 / 227\,s & 98 / 199\,s & 92 / 318\,s \\
-        \bottomrule
-    \end{tabular}
-    \caption{Golden Dataset: fünfter versiegelter Satz (24 Fragen; Antwortzeit aus der ersten Wiederholung)}
-    \label{tab:ergebnisse}
-\end{table}
+\paragraph{Ergebnisse.} Auf dem Kernsatz sind acht von neun Antworten richtig. Bei K7 listet der Orchestrator zusätzlich Verträge ohne Angabe zur Verlängerung auf. Auf dem versiegelten Satz liegt der Orchestrator in drei von vier Fällen richtig, der ReAct-Agent nur in jedem dritten. Fragen ohne passendes Dokument lehnen beide immer ab, auch Fallen wie \enquote{Versicherung für den VW Golf} (das Auto steht nur in einer Werkstattrechnung). Die klare Schwäche sind Listen mit 2 von 10. Der Python-Filter rechnet richtig, das Problem liegt davor im Plan. Bei \enquote{Rechnungen zwischen 100 und 1\,000\,€} übernimmt das Modell nur eine der beiden Grenzen, bei \enquote{SEPA-Verträge von Max Mustermann} nur eine der beiden Bedingungen. Mein Planer erlaubt nur eine Bedingung je Filter.
 
-\paragraph{Ergebnisse.} Auf dem Kernsatz sind acht von neun Antworten richtig. Beim Grenzfall K7 listet P1 zu den richtigen Verträgen noch Verträge \enquote{ohne Angabe} auf, was als falsch zählt. Auf dem versiegelten Satz (Tabelle~\ref{tab:ergebnisse}) ist P1 in drei von vier Fällen richtig, P2 nur in jedem dritten. Von V4 auf V5 ist der gepaarte Unterschied mit $+0{,}04$ [0,00; 0,13] klein, aber nicht negativ. Fragen ohne passendes Dokument lehnen beide immer ab, auch Fallen wie \enquote{Versicherung für den VW Golf} (das Auto steht nur in einer Werkstattrechnung). Die klare Schwäche sind Listen mit 2 von 10. Der Python-Filter rechnet richtig, aber der Plan beschreibt ihn falsch: Bei \enquote{Rechnungen zwischen 100 und 1\,000\,€} übernimmt er nur eine Grenze, bei \enquote{SEPA-Verträge von Max Mustermann} nur eine Bedingung, denn mein Planer erlaubt nur eine Bedingung je Filter. 
-
-\paragraph{Was ich daraus mitnehme.} Was Code entscheidet (Fristen, Filter, Bestand), hat fast immer gestimmt. Fehler entstehen, wo das Modell liest oder einen Filter beschreibt, und P2, bei dem das Modell alles entscheidet, liegt deutlich darunter. Für ein 7--8B-Modell auf der CPU ist ein fester Ablauf mit Prüfung im Code besser als freie Werkzeugwahl. Da Dokumente und Fragen von mir stammen, gelten die Zahlen nur für meinen Fall.
+\paragraph{Was ich daraus mitnehme.} Wo der Code entscheidet, also bei Fristen, Filtern und der Bestandsprüfung, hat das System fast immer gestimmt. Fehler entstehen, wo das Modell liest oder einen Filter beschreibt, und der ReAct-Agent, bei dem das Modell alles entscheidet, liegt deutlich darunter. Für ein 7--8B-Modell auf der CPU halte ich einen festen Ablauf mit Prüfungen im Code deshalb für die bessere Wahl. Allerdings stammen Dokumente und Fragen von mir, die Testsätze sind klein, und echte Unterlagen sind oft gescannt oder unvollständig. Für meinen eigenen Ordner bräuchte LocalLLM noch Texterkennung, Filter mit mehreren Bedingungen und eine verschlüsselte Ablage.
