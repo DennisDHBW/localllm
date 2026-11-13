@@ -3,6 +3,6 @@
 \chapter{Grundlagen}
 \label{chap:grundlagen}
 
-Ein Sprachmodell kennt meine Rechnungen nicht. Bei Retrieval-Augmented Generation (RAG) wird deshalb vor der Antwort gesucht, meist über Embeddings, und die gefundenen Textstellen kommen mit in den Prompt \cite{lewis2020}. Gao et~al. unterscheiden einfaches RAG (\enquote{suchen, dann antworten}) von \emph{modularem} RAG aus austauschbaren Bausteinen wie Vorverarbeitung, Suche, Umformulieren, Neusortieren und Prüfen \cite{gao2023}. Jeden Baustein kann man so einzeln messen und wieder entfernen.
+Ein Sprachmodell kennt meine Rechnungen nicht. Bei Retrieval-Augmented Generation (RAG) wird deshalb vor der Antwort gesucht, meist über Embeddings, und die gefundenen Textstellen kommen mit in den Prompt \cite{lewis2020}. Gao et~al. unterscheiden einfaches RAG (\enquote{suchen, dann antworten}) von \emph{modularem} RAG aus austauschbaren Bausteinen wie Vorverarbeitung, Suche, Umformulieren, Neusortieren und Prüfen \cite{gao2023}.
 
 Ein Agent legt den Ablauf selbst fest. Beim ReAct-Muster wechselt das Modell zwischen Gedanke, Werkzeugaufruf und Beobachtung, bis es antworten kann \cite{yao2023}. Toolformer zeigt, dass Modelle lernen können, wann ein Werkzeug wie ein Rechner hilft \cite{schick2023}. Bei Self-RAG prüft das Modell nach der Antwort selbst, ob sie von den gefundenen Stellen gedeckt ist \cite{asai2024}. GraphRAG baut aus allen Texten einen Wissensgraphen und hilft bei Fragen über die ganze Sammlung, kostet beim Einlesen aber sehr viele Modellaufrufe \cite{edge2024}.

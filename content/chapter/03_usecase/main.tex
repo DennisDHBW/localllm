@@ -3,23 +3,23 @@
 \chapter{Use Case und Daten}
 \label{chap:usecase}
 
-Meine Fragen im Alltag fallen in fünf Typen (Tabelle~\ref{tab:fragetypen}). Sie bestimmen die Architektur: Für a und b reicht eine gute Suche, c braucht zwei Dokumente, d alle Verträge auf einmal, und bei e muss der Agent erkennen, dass es kein passendes Dokument gibt.
+Meine Fragen im Alltag fallen in fünf Typen (Tabelle~\ref{tab:fragetypen}). Sie bestimmen die Architektur, denn jeder Typ verlangt etwas anderes vom Agenten.
 
-\begin{table}[H]
+\paragraph{Eigener Datensatz.} Die Beispieldaten der Vorlesung passen nicht zu meinem Use Case, echte Rechnungen kann ich nicht abgeben. Ich habe deshalb zehn Rechnungen (PDF) und sechs Verträge (drei DOCX, drei PDF) mit realistischen Layouts aus festen Sollwerten erzeugt. So kenne ich zu jeder Frage Antwort und Dokument. Schwierig sind Hoch- und Niedertarif in Nachbarzeilen, Netto- und Bruttospalten nebeneinander und ein Diagramm, dessen Werte nur im Bild stehen.
+
+\begin{table}[tb]
     \centering\footnotesize\setstretch{1.05}
     \begin{tabularx}{\textwidth}{@{}l Y Y@{}}
         \toprule
         \textbf{Typ} & \textbf{Beispiel} & \textbf{Was der Agent dafür braucht} \\
         \midrule
-        a) Wert aus Tabelle & Wie viel Umsatzsteuer weist die LuminaStyle-Rechnung aus? & die richtige Tabellenzeile mit Spaltenkopf \\
-        b) Textstelle & Wie lange läuft der Handyvertrag mindestens? & den richtigen Abschnitt im Vertrag \\
-        c) Zwei Dokumente & Passt die Vorauszahlung der Wasserabrechnung zum Vertrag? & Rechnung \emph{und} Vertrag, die zusammengehören \\
-        d) Liste & Welche Verträge verlängern sich automatisch um ein Jahr? & alle Verträge, Fristen richtig berechnet \\
-        e) ohne Beleg & Welche Kündigungsfrist hat mein Handyvertrag bei Vodafone? & erkennen, dass es kein Dokument gibt \\
+        a) Wert aus Tabelle & Umsatzsteuer der LuminaStyle-Rechnung? & Tabellenzeile mit Spaltenkopf \\
+        b) Textstelle & Mindestlaufzeit des Handyvertrags? & richtiger Abschnitt im Vertrag \\
+        c) Zwei Dokumente & Wasser-Vorauszahlung wie im Vertrag? & Rechnung \emph{und} zugehöriger Vertrag \\
+        d) Liste & Welche Verträge verlängern sich? & alle Verträge, Fristen berechnet \\
+        e) ohne Beleg & Kündigungsfrist bei Vodafone? & erkennen, dass nichts passt \\
         \bottomrule
     \end{tabularx}
     \caption{Fragetypen und was sie vom Agenten verlangen}
     \label{tab:fragetypen}
 \end{table}
-
-\paragraph{Eigener Datensatz.} Die Beispieldaten der Vorlesung passen nicht zu meinem Use Case, echte Rechnungen kann ich nicht abgeben. Ich habe deshalb zehn Rechnungen (PDF) und sechs Verträge (drei DOCX, drei PDF) mit realistischen Layouts aus festen Sollwerten erzeugt. So kenne ich zu jeder Frage Antwort und Dokument. Schwierig sind Hoch- und Niedertarif in Nachbarzeilen, Netto- und Bruttospalten nebeneinander und ein Diagramm, dessen Werte nur im Bild stehen.

@@ -22,7 +22,7 @@ Ich nutze drei Kennzahlen: eine für das Endergebnis und je eine für die beiden
 \[
 \text{Faithfulness} = \frac{|\text{Aussagen, die aus den Belegen folgen}|}{|\text{Aussagen der Antwort}|}
 \]
-1,0 heißt \enquote{nichts erfunden}. \emph{Warum:} Die größte Gefahr bei meinem Use Case ist eine überzeugende, aber erfundene Aussage über Geld oder Fristen, auch ohne Zahl. Meine eigene Zahlprüfung sieht nur Zahlen. Ablehnungen enthalten keine Aussage und zählen nicht mit. \emph{Grenze:} Der Richter ist ein kleines Modell, dasselbe wie im Entwurf von P1. Deshalb gleiche ich seine Urteile mit meiner Zahlprüfung ab.
+1,0 heißt \enquote{nichts erfunden}. \emph{Warum:} Die größte Gefahr bei meinem Use Case ist eine überzeugende, aber erfundene Aussage über Geld oder Fristen, auch ohne Zahl. Meine eigene Zahlprüfung sieht nur Zahlen. Ablehnungen enthalten keine Aussage und zählen nicht mit.
 
 \paragraph{3. Context Recall: Hat die Suche alles gefunden?} Hier geht der Richter von der Sollantwort aus. Er zerlegt sie in Sätze und prüft für jeden, ob er sich einem der gefundenen Belege zuordnen lässt:
 \[
@@ -32,8 +32,6 @@ Die Sollantwort bilde ich aus der Belegstelle (\enquote{Laut Dokument: 2,80\,€
 
 \section{Ergebnisse}
 \label{sec:ergebnisse}
-
-Tabelle~\ref{tab:ergebnisse} zeigt P1 vor (V4) und nach dem letzten Feinschliff (V5) mit je zwei Wiederholungen sowie P2.
 
 \begin{table}[H]
     \centering\small
@@ -51,13 +49,11 @@ Tabelle~\ref{tab:ergebnisse} zeigt P1 vor (V4) und nach dem letzten Feinschliff 
         Latenz p50 / p95 & 113 / 227\,s & 98 / 199\,s & 92 / 318\,s \\
         \bottomrule
     \end{tabular}
-    \caption{Ergebnisse auf dem fünften versiegelten Satz (24 Fragen, P1 je zwei Wiederholungen). Latenz aus der ersten Wiederholung}
+    \caption{Ergebnisse auf dem fünften versiegelten Satz (24 Fragen): P1 vor (V4) und nach dem letzten Feinschliff (V5) mit je zwei Wiederholungen, P2 einmal. Latenz aus der ersten Wiederholung}
     \label{tab:ergebnisse}
 \end{table}
 
 \paragraph{Korrektheit.} P1 beantwortet drei von vier Fragen richtig, P2 nur jede dritte. Der Feinschliff hat eine Frage repariert, der gepaarte Unterschied ist mit $+0{,}04$ [0,00; 0,13] klein, aber nicht negativ. Fragen ohne Beleg lehnen beide Prototypen immer ab, auch Fallen wie \enquote{Versicherung für den VW Golf} (das Auto steht nur in einer Werkstattrechnung). Schwach bleiben Listen. Der Filter selbst rechnet richtig, aber der Plan beschreibt ihn falsch: Bei \enquote{Rechnungen zwischen 100 und 1\,000\,€} und \enquote{SEPA-Verträge von Max Mustermann} übernimmt er nur eine der zwei Bedingungen, bei \enquote{Aus welchen Verträgen komme ich bis Jahresende raus?} filtert er die Kündigungsfrist statt des Kündigungstermins.
 
 \paragraph{RAGAS gegen die eigene Zahlprüfung.} \RAGASText
-
-\paragraph{Latenz.} Mein Ziel von 60\,s erreicht keine Variante. Der Entwurf braucht 50--110\,s, fast nur zum Lesen der Belege (etwa 18 Tokens/s auf einem Ryzen~5 7520U). Listen und Fragen ohne Beleg brauchen keinen Entwurf und dauern 10--20\,s.
 
