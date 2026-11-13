@@ -74,9 +74,9 @@
 
 \newpage
 
-% Acronyms
-\cleardoublepage
-\printglossary[type=acronym, title={\acronymsPhrase}, style=index]
+% Acronyms (keine Abkürzungen im Text verwendet)
+% \cleardoublepage
+% \printglossary[type=acronym, title={\acronymsPhrase}, style=index]
 
 % List of Figures
 \cleardoublepage
@@ -88,7 +88,7 @@
 
 % List of Listings
 \cleardoublepage
-\lstlistoflistings
+% \lstlistoflistings
 \cleardoublepage
 
 \end{spacing}
@@ -100,22 +100,10 @@
 % Content: Kapitel ohne Seitenumbruch (Umfangsvorgabe 5-8 Seiten)
 \begingroup
 \RedeclareSectionCommand[style=section, beforeskip=-1.2\baselineskip, afterskip=0.6\baselineskip, font=\Large\bfseries]{chapter}
-\input{content/chapter/01_problemstellung/main.tex}
+\input{content/chapter/01_einfuehrung/main.tex}
 \input{content/chapter/02_architektur/main.tex}
-\input{content/chapter/03_vorverarbeitung/main.tex}
-\input{content/chapter/04_reverse/main.tex}
-\input{content/chapter/05_evaluation/main.tex}
-\input{content/chapter/06_reflexion/main.tex}
+\input{content/chapter/03_evaluation/main.tex}
 \endgroup
-
-\clearpage
-
-% Bibilography
-
-\cleardoublepage
-\begin{spacing}{1.175}
-    \printbibliography
-\end{spacing}
 
 % Glossar
 \ifshowGlossary

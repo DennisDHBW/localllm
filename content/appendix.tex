@@ -25,44 +25,44 @@
 \end{table}
 
 
-Alle 24 Fragen des dritten versiegelten Testsatzes (\texttt{src/eval/sets/heldout3.json}), geschrieben und per SHA-256 versiegelt, bevor die geprüfte Antwort gebaut wurde. Die Sollwerte stammen aus dem Rohtext der Dokumente. Ergebnis: \checkmark{} = richtig nach der Regel aus Abschnitt~\ref{sec:kpis}. Beide Wiederholungen ergaben dieselben Antworten.
+Alle 24 Fragen des fünften versiegelten Testsatzes (\texttt{src/eval/sets/heldout5.json}), geschrieben und per SHA-256 versiegelt, bevor der letzte Feinschliff begann. Die Sollwerte stammen aus dem Rohtext der Dokumente. P1 lief zweimal (Anzahl richtiger Läufe), P2 einmal (\checkmark{} = richtig).
 
 \begin{table}[H]
     \centering\scriptsize
     \setlength{\tabcolsep}{3pt}
     \begin{tabularx}{\textwidth}{@{}l l p{5.2cm} Y c c c@{}}
         \toprule
-        \textbf{Nr.} & \textbf{Typ} & \textbf{Frage (gekürzt)} & \textbf{Warum diese Frage} & \textbf{P1 alt} & \textbf{P1} & \textbf{P2} \\
+        \textbf{Nr.} & \textbf{Typ} & \textbf{Frage (gekürzt)} & \textbf{Warum diese Frage} & \textbf{P1 V4} & \textbf{P1 V5} & \textbf{P2} \\
         \midrule
-        T01 & a & Umsatzsteuer der LuminaStyle-Rechnung & Wert in der Summenzeile unter der Tabelle, nicht in einer Position & \checkmark & \checkmark & -- \\
-        T02 & a & Versicherungssteuer der NordStern-Beitragsrechnung & Steuer und Beitrag sind zwei ähnliche Beträge & \checkmark & \checkmark & -- \\
-        T03 & a & Nachtstrom (NT) netto, Heizstrom 2024 & Hoch- und Niedertarif stehen in Nachbarzeilen & \checkmark & \checkmark & \checkmark \\
-        T04 & a & Blutentnahme auf der Arztrechnung & kleine Position unter vielen & \checkmark & \checkmark & -- \\
-        T05 & a & Räderwechsel netto, Werkstatt & Netto- statt Bruttospalte & \checkmark & \checkmark & -- \\
-        T06 & a & zwei Ladekabel brutto inkl.\ 19\,\% & Rechnen: 25,04\,€ $\times$ 1,19 = 29,80\,€ & -- & \checkmark & -- \\
-        T07 & b & erste Laufzeit des Heizstromvertrags & Textstelle im DOCX-Vertrag & -- & -- & \checkmark \\
-        T08 & b & Zahlungsweise im Stromvertrag & Antwort ist ein Wort, keine Zahl & -- & -- & -- \\
-        T09 & b & Rücksendefrist bei LuminaStyle & Kleingedrucktes einer Rechnung & \checkmark & \checkmark & -- \\
-        T10 & b & Abschlussdatum des Heizstromvertrags & mehrere Daten im Vertrag (Abschluss, Beginn, Ende) & -- & -- & -- \\
-        T11 & b & Kündigung ConnectNet nach Mindestlaufzeit & zwei Teile (\enquote{jederzeit}, \enquote{ein Monat}) & \checkmark & -- & -- \\
-        T12 & c & Grundpreis Stromrechnung gleich Vertrag? & Vergleich Rechnung--Vertrag, Werte gleich & \checkmark & -- & -- \\
-        T13 & c & Differenz StreamPulse netto zu Vertrag brutto & zwei Dokumente und Rechnen (24,98 $-$ 20,99) & -- & -- & -- \\
-        T14 & c & Schmutzwassergebühr laut Vertrag berechnet? & Vergleich Rechnung--Vertrag (Kapitel~\ref{chap:reverse}) & \checkmark & \checkmark & -- \\
-        T15 & c & Abschlussdatum des Vertrags zur Wasserrechnung & Weg über die Vertragsnummer & -- & -- & -- \\
-        T16 & d & Verträge mit monatlichen Abschlägen & Wasser zahlt quartalsweise und muss fehlen & -- & \checkmark & -- \\
-        T17 & d & Erstlaufzeit endet 2027 & Filter über ein Datumsfeld & -- & \checkmark & \checkmark \\
-        T18 & d & 2025 abgeschlossene Verträge & Filter über das Abschlussdatum & -- & -- & -- \\
-        T19 & d & Rechnungen über 500\,€ & Liste über Rechnungen mit Schwelle & -- & -- & -- \\
-        T20 & d & jährlich bezahlte Verträge & Filter über den Zahlungsturnus & -- & \checkmark & -- \\
-        T21 & e & Rundfunkbeitrag laut Bescheid & Dokumentart fehlt ganz & \checkmark & \checkmark & \checkmark \\
-        T22 & e & Zeitungsabo pro Monat & es gibt ein Abo, aber ein anderes (Streaming) & \checkmark & \checkmark & \checkmark \\
-        T23 & e & Kündigungsfrist Servicevertrag Auto \& Service Müller & Anbieter hat nur eine Rechnung, keinen Vertrag & \checkmark & \checkmark & \checkmark \\
-        T24 & e & Jahresabrechnung Strom 2025 & es gibt 2024 und eine Verbrauchsübersicht 2025 & \checkmark & -- & \checkmark \\
+        T01 & a & USt der Stromrechnung 2024 & Netto und Brutto stehen direkt daneben & 2/2 & 2/2 & -- \\
+        T02 & a & Nettobeitrag NordStern & Gesamtbeitrag inkl.\ Steuer als Störwert & 0/2 & 0/2 & -- \\
+        T03 & a & Inspektion netto, Werkstatt & Stundensatz und Stunden in derselben Zeile & 2/2 & 2/2 & -- \\
+        T04 & a & Trinkwassergebühr brutto & netto steht in derselben Zeile & 2/2 & 2/2 & -- \\
+        T05 & a & Untersuchung auf der Arztrechnung & Einfachsatz und Faktor stehen davor & 2/2 & 2/2 & -- \\
+        T06 & a & Stehleuchte netto, LuminaStyle & mehrere Artikel in der Tabelle & 2/2 & 2/2 & \checkmark \\
+        T07 & b & Erstlaufzeit Stromvertrag & Kündigungsfrist als Störwert & 0/2 & 2/2 & -- \\
+        T08 & b & Preisgarantie ConnectNet & gleiches Datum wie Ende der Mindestlaufzeit & 2/2 & 2/2 & \checkmark \\
+        T09 & b & seit wann läuft StreamPulse & Alltagssprache für Vertragsbeginn & 2/2 & 2/2 & -- \\
+        T10 & b & Vertragsnummer Wasser & Zählernummer als Störwert & 2/2 & 2/2 & \checkmark \\
+        T11 & b & Kfz-Versicherung zum Jahresende kündigen & Frist in Alltagssprache & 2/2 & 2/2 & -- \\
+        T12 & c & Tagstrom zum Vertragspreis abgerechnet? & Nachtstrompreis als Störwert & 2/2 & 2/2 & -- \\
+        T13 & c & Tarif Mobile L wie im Vertrag? & drei Tarife in beiden Tabellen & 1/2 & 1/2 & -- \\
+        T14 & c & Differenz Wasser-Vorauszahlung & Werte aus zwei Dokumenten, rechnen & 2/2 & 2/2 & -- \\
+        T15 & c & Grundgebühr Wasserzähler wie im Vertrag? & Jahressumme und Brutto als Störwerte & 2/2 & 2/2 & -- \\
+        T16 & d & Verträge per Kreditkarte & Filter mit nur einem Treffer & 0/2 & 0/2 & \checkmark \\
+        T17 & d & Rechnungen aus 2025 & Rechnungs- statt Abrechnungsjahr & 2/2 & 2/2 & -- \\
+        T18 & d & Rechnungen zwischen 100 und 1.000\,€ & Bereich mit zwei Grenzen & 0/2 & 0/2 & -- \\
+        T19 & d & SEPA-Verträge von Max Mustermann & zwei Bedingungen & 0/2 & 0/2 & -- \\
+        T20 & d & bis 31.12.2026 kündbar & Termin in Alltagssprache & 0/2 & 0/2 & -- \\
+        T21 & e & Wohngebäudeversicherung & Adresse vorhanden, Versicherung nicht & 2/2 & 2/2 & \checkmark \\
+        T22 & e & Versicherung des VW Golf & Auto nur in der Werkstattrechnung & 2/2 & 2/2 & \checkmark \\
+        T23 & e & DSL bei 1\&1 & Thema vorhanden, Anbieter nicht & 2/2 & 2/2 & \checkmark \\
+        T24 & e & Heizstromabrechnung 2025 & Anbieter vorhanden, Jahr nicht & 2/2 & 2/2 & \checkmark \\
         \midrule
-        \multicolumn{4}{@{}l}{\textbf{richtig}} & 13/24 & 14/24 & 7/24 \\
+        \multicolumn{4}{@{}l}{\textbf{richtig}} & 35/48 & 37/48 & 8/24 \\
         \bottomrule
     \end{tabularx}
-    \caption{Dritter versiegelter Testsatz: Begründung und Ergebnis je Frage}
+    \caption{Fünfter versiegelter Testsatz: Begründung und Ergebnis je Frage}
     \label{tab:testsatz}
 \end{table}
 
